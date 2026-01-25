@@ -15,7 +15,7 @@ namespace GamesDat.Demo
                 return;
             }
 
-            //await CaptureSessionAsync();
+            await CaptureSessionAsync();
         }
 
         #region Sim Racing

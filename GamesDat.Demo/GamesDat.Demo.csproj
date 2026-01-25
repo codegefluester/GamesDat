@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GameasDat\GameasDat.Core.csproj" />
+    <ProjectReference Include="..\GameasDat\GamesDat.Core.csproj" />
   </ItemGroup>
 
 </Project>
