@@ -2,7 +2,7 @@
   "profiles": {
     "Read": {
       "commandName": "Project",
-      "commandLineArgs": "read ./sessions/acc_20260125_110008.msgpack"
+      "commandLineArgs": "read"
     },
     "Record Session": {
       "commandName": "Project"

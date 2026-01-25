@@ -1,6 +1,6 @@
-﻿using GameasDat.Core.Reader;
+﻿using GameasDat.Core;
+using GameasDat.Core.Reader;
 using GameasDat.Core.Telemetry.Sources.AssettoCorsa;
-using GameasDat.Core.Telemetry.Sources.Rocket_League;
 using GameasDat.Core.Writer;
 
 namespace GamesDat.Demo
@@ -9,22 +9,19 @@ namespace GamesDat.Demo
     {
         static async Task Main(string[] args)
         {
-            //if (args.Length > 0 && args[0] == "read")
-            //{
-            //    await ReadSessionAsync(args.Length > 1 ? args[1] : null);
-            //    return;
-            //}
+            if (args.Length > 0 && args[0] == "read")
+            {
+                await ReadSessionAsync(args.Length > 1 ? args[1] : null);
+                return;
+            }
 
             //await CaptureSessionAsync();
-        
-            await DemoFileWatcherAsync();
         }
 
         #region Sim Racing
         static async Task CaptureSessionAsync()
         {
-            Console.WriteLine("Starting ACC telemetry capture...");
-            Console.WriteLine("Make sure ACC is running!");
+            Console.WriteLine("ACC Telemetry Capture - Fluent API Demo");
             Console.WriteLine("Press Ctrl+C to stop\n");
 
             var cts = new CancellationTokenSource();
@@ -34,39 +31,36 @@ namespace GamesDat.Demo
                 cts.Cancel();
             };
 
-            var sessionPath = $"./sessions/acc_{DateTime.UtcNow:yyyyMMdd_HHmmss}.msgpack";
-
-            using var source = ACCSources.CreatePhysicsSource();
-            using var writer = new BinarySessionWriter();
-            writer.Start(sessionPath);
-
             try
             {
-                int frameCount = 0;
-                await foreach (var data in source.ReadContinuousAsync(cts.Token))
-                {
-                    writer.WriteFrame(data, DateTime.UtcNow.Ticks);
-
-                    frameCount++;
-                    if (frameCount % 100 == 0)
+                await using var session = new GameSession()
+                    .AddSource(
+                        ACCSources.CreatePhysicsSource(), 
+                        opt => opt
+                            .UseWriter(new BinarySessionWriter())
+                            .OutputTo($"./sessions/acc_{DateTime.UtcNow:yyyyMMdd_HHmmss}.dat")
+                            )
+                    .OnData<ACCPhysics>(data =>
                     {
-                        Console.WriteLine($"Frames: {frameCount} | Speed: {data.SpeedKmh:F1} km/h | RPM: {data.RPM} | Gear: {data.Gear}");
-                    }
-                }
+                        // Real-time callback - update UI, send to dashboard, etc.
+                        if (data.PacketId % 100 == 0) // Every 100 frames
+                        {
+                            Console.WriteLine($"Live: {data.SpeedKmh:F1} km/h | {data.RPM} RPM | Gear {data.Gear}");
+                        }
+                    });
+
+                await session.StartAsync(cts.Token);
+
+                // Session is now running, wait for cancellation
+                await Task.Delay(Timeout.Infinite, cts.Token);
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine("\nError: ACC is not running or shared memory is not available.");
-                Console.WriteLine("Make sure ACC is running before starting capture.");
+                Console.WriteLine("\nError: ACC is not running. Start ACC and try again.");
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("\nStopping capture...");
-            }
-            finally
-            {
-                writer.Stop();
-                Console.WriteLine($"\nSession saved to: {sessionPath}");
+                Console.WriteLine("\nCapture stopped by user.");
             }
         }
 
@@ -75,7 +69,7 @@ namespace GamesDat.Demo
             if (string.IsNullOrEmpty(filePath))
             {
                 // Find most recent session
-                var sessions = Directory.GetFiles("./sessions", "*.msgpack")
+                var sessions = Directory.GetFiles("./sessions", "*.dat")
                     .OrderByDescending(f => File.GetCreationTime(f))
                     .ToList();
 
@@ -155,13 +149,13 @@ namespace GamesDat.Demo
             Console.WriteLine($"Max speed: {maxSpeed:F1} km/h");
 
             // Export to CSV
-            var csvPath = filePath.Replace(".msgpack", ".csv");
+            var csvPath = filePath.Replace(".dat", ".csv");
             Console.WriteLine($"\nExporting to CSV: {csvPath}");
             await ExportToCsvAsync(filePath, csvPath);
             Console.WriteLine("CSV export complete!");
 
             // Export to HTML
-            var htmlPath = filePath.Replace(".msgpack", ".html");
+            var htmlPath = filePath.Replace(".dat", ".html");
             Console.WriteLine($"Creating chart: {htmlPath}");
             await ExportToHtmlChartAsync(filePath, htmlPath);
             Console.WriteLine($"Chart created! Open {htmlPath} in your browser.");
@@ -369,54 +363,6 @@ namespace GamesDat.Demo
             }
         }
 
-        #endregion
-
-        #region Replay Files (RB6 Siege, Rocket League etc.)
-        static async Task DemoFileWatcherAsync()
-        {
-            Console.WriteLine("File Watcher Demo - Monitoring for Rocket League replays");
-            Console.WriteLine("Play a match in Rocket League to generate a replay file");
-            Console.WriteLine("Press Ctrl+C to stop\n");
-
-            var cts = new CancellationTokenSource();
-            Console.CancelKeyPress += (s, e) =>
-            {
-                e.Cancel = true;
-                cts.Cancel();
-            };
-
-            try
-            {
-                using var source = RocketLeagueReplayFileSource.CreateReplaySource();
-
-                Console.WriteLine($"Monitoring: {RocketLeagueReplayFileSource.GetDefaultReplayPath()}");
-                Console.WriteLine("Waiting for new replay files...\n");
-
-                await foreach (var replayPath in source.ReadContinuousAsync(cts.Token))
-                {
-                    var fileInfo = new FileInfo(replayPath);
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] New replay detected!");
-                    Console.WriteLine($"  File: {fileInfo.Name}");
-                    Console.WriteLine($"  Size: {fileInfo.Length:N0} bytes");
-                    Console.WriteLine($"  Path: {replayPath}");
-                    Console.WriteLine();
-
-                    // Here you could:
-                    // - Copy the file somewhere
-                    // - Parse it
-                    // - Upload it
-                    // - Trigger processing
-                }
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-            catch (OperationCanceledException)
-            {
-                Console.WriteLine("\nStopped monitoring.");
-            }
-        }
         #endregion
     }
 }
