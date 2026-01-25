@@ -1,5 +1,6 @@
 ﻿using GameasDat.Core.Reader;
 using GameasDat.Core.Telemetry.Sources.AssettoCorsa;
+using GameasDat.Core.Telemetry.Sources.Rocket_League;
 using GameasDat.Core.Writer;
 
 namespace GamesDat.Demo
@@ -8,15 +9,18 @@ namespace GamesDat.Demo
     {
         static async Task Main(string[] args)
         {
-            if (args.Length > 0 && args[0] == "read")
-            {
-                await ReadSessionAsync(args.Length > 1 ? args[1] : null);
-                return;
-            }
+            //if (args.Length > 0 && args[0] == "read")
+            //{
+            //    await ReadSessionAsync(args.Length > 1 ? args[1] : null);
+            //    return;
+            //}
 
-            await CaptureSessionAsync();
+            //await CaptureSessionAsync();
+        
+            await DemoFileWatcherAsync();
         }
 
+        #region Sim Racing
         static async Task CaptureSessionAsync()
         {
             Console.WriteLine("Starting ACC telemetry capture...");
@@ -364,5 +368,55 @@ namespace GamesDat.Demo
                 throw;
             }
         }
+
+        #endregion
+
+        #region Replay Files (RB6 Siege, Rocket League etc.)
+        static async Task DemoFileWatcherAsync()
+        {
+            Console.WriteLine("File Watcher Demo - Monitoring for Rocket League replays");
+            Console.WriteLine("Play a match in Rocket League to generate a replay file");
+            Console.WriteLine("Press Ctrl+C to stop\n");
+
+            var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, e) =>
+            {
+                e.Cancel = true;
+                cts.Cancel();
+            };
+
+            try
+            {
+                using var source = RocketLeagueReplayFileSource.CreateReplaySource();
+
+                Console.WriteLine($"Monitoring: {RocketLeagueReplayFileSource.GetDefaultReplayPath()}");
+                Console.WriteLine("Waiting for new replay files...\n");
+
+                await foreach (var replayPath in source.ReadContinuousAsync(cts.Token))
+                {
+                    var fileInfo = new FileInfo(replayPath);
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] New replay detected!");
+                    Console.WriteLine($"  File: {fileInfo.Name}");
+                    Console.WriteLine($"  Size: {fileInfo.Length:N0} bytes");
+                    Console.WriteLine($"  Path: {replayPath}");
+                    Console.WriteLine();
+
+                    // Here you could:
+                    // - Copy the file somewhere
+                    // - Parse it
+                    // - Upload it
+                    // - Trigger processing
+                }
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("\nStopped monitoring.");
+            }
+        }
+        #endregion
     }
 }
