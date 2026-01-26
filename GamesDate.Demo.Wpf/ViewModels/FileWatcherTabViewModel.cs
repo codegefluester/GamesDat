@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GamesDat.Core.Telemetry.Sources;
+using GamesDat.Core.Telemetry.Sources.Counter_Strike;
 using GamesDat.Core.Telemetry.Sources.Rainbow_Six;
 using GamesDat.Core.Telemetry.Sources.Rocket_League;
 using GamesDate.Demo.Wpf.Models;
@@ -92,6 +93,31 @@ public partial class FileWatcherTabViewModel : ViewModelBase, IDisposable
                 "*.rec",
                 null);
             Sources.Add(r6Source);
+        }
+
+        try
+        {
+            var csgoPath = CounterStrikeDemoFileSource.GetDefaultDemoPath();
+            var csgoSource = new FileWatcherSourceViewModel(
+                "Counter-Strike: Global Offensive",
+                csgoPath,
+                "*.dem",
+                () => new CounterStrikeDemoFileSource());
+            csgoSource.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(csgoSource);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                "Steam", "steamapps", "common", "Counter-Strike Global Offensive", "csgo");
+            var csgoSource = new FileWatcherSourceViewModel(
+                "Counter-Strike: Global Offensive (Not Installed)",
+                defaultPath,
+                "*.dem",
+                null);
+            Sources.Add(csgoSource);
         }
     }
 
