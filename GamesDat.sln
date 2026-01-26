@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDat.Demo", "GamesDat.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDat.Tests", "GamesDat.Tests\GamesDat.Tests.csproj", "{1F791459-86D4-4088-8D00-2BF792001A27}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDate.Demo.Wpf", "GamesDate.Demo.Wpf\GamesDate.Demo.Wpf.csproj", "{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{1F791459-86D4-4088-8D00-2BF792001A27}.Release|x64.Build.0 = Release|Any CPU
 		{1F791459-86D4-4088-8D00-2BF792001A27}.Release|x86.ActiveCfg = Release|Any CPU
 		{1F791459-86D4-4088-8D00-2BF792001A27}.Release|x86.Build.0 = Release|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Debug|x64.Build.0 = Debug|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Debug|x86.Build.0 = Debug|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Release|x64.ActiveCfg = Release|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Release|x64.Build.0 = Release|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Release|x86.ActiveCfg = Release|Any CPU
+		{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
