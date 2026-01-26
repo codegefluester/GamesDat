@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using GameasDat.Core.Attributes;
+using GamesDat.Core.Attributes;
 
-namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
+namespace GamesDat.Core.Telemetry.Sources.AssettoCorsa
 {
     /// <summary>
     /// ACC Graphics data from acpmf_graphics memory-mapped file

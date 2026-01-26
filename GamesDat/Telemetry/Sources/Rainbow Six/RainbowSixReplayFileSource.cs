@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameasDat.Core.Telemetry.Sources.Rainbow_Six
+namespace GamesDat.Core.Telemetry.Sources.Rainbow_Six
 {
     public static class RainbowSixReplayFileSource
     {

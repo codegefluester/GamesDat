@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameasDat.Core.Telemetry.Sources
+namespace GamesDat.Core.Telemetry.Sources
 {
     /// <summary>
     /// Monitors a directory for new or modified files matching specified patterns

@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using GameasDat.Core.Attributes;
+using GamesDat.Core.Attributes;
 
-namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
+namespace GamesDat.Core.Telemetry.Sources.AssettoCorsa
 {
     /// <summary>
     /// Combined data structure containing all ACC telemetry streams.

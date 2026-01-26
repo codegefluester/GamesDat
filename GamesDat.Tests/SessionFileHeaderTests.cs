@@ -1,4 +1,4 @@
-using GameasDat.Core.Models;
+using GamesDat.Core.Models;
 using Xunit;
 
 namespace GamesDat.Tests;
@@ -85,7 +85,7 @@ public class SessionFileHeaderTests
         var header = new SessionFileHeader
         {
             GameId = "ACC",
-            TypeName = "GameasDat.Core.Test.TestStruct, GamesDat.Core",
+            TypeName = "GamesDat.Core.Test.TestStruct, GamesDat.Core",
             DataVersion = SessionFileHeader.EncodeVersion(1, 0, 0),
             StructSize = 1024
         };

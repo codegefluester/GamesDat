@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameasDat.Core.Telemetry.Sources.Rocket_League
+namespace GamesDat.Core.Telemetry.Sources.Rocket_League
 {
     public static class RocketLeagueReplayFileSource
     {

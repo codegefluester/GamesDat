@@ -1,9 +1,9 @@
 ﻿using K4os.Compression.LZ4.Streams;
 using System.Runtime.InteropServices;
-using GameasDat.Core.Helpers;
-using GameasDat.Core.Models;
+using GamesDat.Core.Helpers;
+using GamesDat.Core.Models;
 
-namespace GameasDat.Core.Writer
+namespace GamesDat.Core.Writer
 {
     public class BinarySessionWriter : ISessionWriter
     {

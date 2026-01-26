@@ -1,4 +1,4 @@
-﻿namespace GameasDat.Core.Writer
+﻿namespace GamesDat.Core.Writer
 {
     public interface ISessionWriter : IDisposable
     {

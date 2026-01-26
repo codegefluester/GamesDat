@@ -1,4 +1,4 @@
-namespace GameasDat.Core.Attributes;
+namespace GamesDat.Core.Attributes;
 
 /// <summary>
 /// Specifies the semantic version of a data structure.

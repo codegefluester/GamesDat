@@ -1,7 +1,7 @@
-﻿using GameasDat.Core;
-using GameasDat.Core.Reader;
-using GameasDat.Core.Telemetry.Sources.AssettoCorsa;
-using GameasDat.Core.Writer;
+﻿using GamesDat.Core;
+using GamesDat.Core.Reader;
+using GamesDat.Core.Telemetry.Sources.AssettoCorsa;
+using GamesDat.Core.Writer;
 
 namespace GamesDat.Demo
 {

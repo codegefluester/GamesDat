@@ -1,8 +1,8 @@
-﻿using GameasDat.Core.Telemetry;
-using GameasDat.Core.Writer;
+﻿using GamesDat.Core.Telemetry;
+using GamesDat.Core.Writer;
 using System.Collections.Concurrent;
 
-namespace GameasDat.Core
+namespace GamesDat.Core
 {
     /// <summary>
     /// Main entry point for GameTelemetry. Fluent API for capturing game data.

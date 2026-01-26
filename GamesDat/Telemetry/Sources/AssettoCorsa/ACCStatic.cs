@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using GameasDat.Core.Attributes;
+using GamesDat.Core.Attributes;
 
-namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
+namespace GamesDat.Core.Telemetry.Sources.AssettoCorsa
 {
     [GameId("ACC")]
     [DataVersion(1, 0, 0)]

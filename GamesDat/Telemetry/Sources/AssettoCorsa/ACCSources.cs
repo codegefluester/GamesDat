@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
+namespace GamesDat.Core.Telemetry.Sources.AssettoCorsa
 {
     /// <summary>
     /// Pre-configured sources for ACC telemetry

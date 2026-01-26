@@ -1,6 +1,6 @@
-﻿using GameasDat.Core.Writer;
+﻿using GamesDat.Core.Writer;
 
-namespace GameasDat.Core.Telemetry
+namespace GamesDat.Core.Telemetry
 {
     public interface ITelemetrySource<T> : IDisposable
     {

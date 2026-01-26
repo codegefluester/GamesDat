@@ -1,6 +1,6 @@
-using GameasDat.Core.Writer;
+using GamesDat.Core.Writer;
 
-namespace GameasDat.Core.Telemetry
+namespace GamesDat.Core.Telemetry
 {
     /// <summary>
     /// Abstract base class for telemetry sources providing common configuration functionality

@@ -1,4 +1,4 @@
-namespace GameasDat.Core.Attributes;
+namespace GamesDat.Core.Attributes;
 
 /// <summary>
 /// Identifies which game generated the telemetry data.

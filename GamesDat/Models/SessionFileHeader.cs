@@ -1,4 +1,4 @@
-namespace GameasDat.Core.Models;
+namespace GamesDat.Core.Models;
 
 /// <summary>
 /// Represents the metadata header for session files.

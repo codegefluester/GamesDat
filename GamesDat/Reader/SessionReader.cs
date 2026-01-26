@@ -1,13 +1,9 @@
 ﻿using K4os.Compression.LZ4.Streams;
-using MessagePack;
-using System;
-using System.IO;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using GameasDat.Core.Models;
+using GamesDat.Core.Models;
 
-namespace GameasDat.Core.Reader
+namespace GamesDat.Core.Reader
 {
     public static class SessionReader
     {

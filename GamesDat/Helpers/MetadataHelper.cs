@@ -1,7 +1,7 @@
 using System.Reflection;
-using GameasDat.Core.Attributes;
+using GamesDat.Core.Attributes;
 
-namespace GameasDat.Core.Helpers;
+namespace GamesDat.Core.Helpers;
 
 /// <summary>
 /// Helper methods for extracting metadata from data structures

@@ -1,6 +1,6 @@
-using GameasDat.Core.Reader;
-using GameasDat.Core.Telemetry.Sources.AssettoCorsa;
-using GameasDat.Core.Writer;
+using GamesDat.Core.Reader;
+using GamesDat.Core.Telemetry.Sources.AssettoCorsa;
+using GamesDat.Core.Writer;
 using Xunit;
 
 namespace GamesDat.Tests;

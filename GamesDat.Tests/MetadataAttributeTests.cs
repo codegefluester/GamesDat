@@ -1,6 +1,6 @@
-using GameasDat.Core.Attributes;
-using GameasDat.Core.Helpers;
-using GameasDat.Core.Telemetry.Sources.AssettoCorsa;
+using GamesDat.Core.Attributes;
+using GamesDat.Core.Helpers;
+using GamesDat.Core.Telemetry.Sources.AssettoCorsa;
 using System.Runtime.InteropServices;
 using Xunit;
 

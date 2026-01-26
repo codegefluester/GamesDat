@@ -1,5 +1,5 @@
-using GameasDat.Core.Reader;
-using GameasDat.Core.Telemetry.Sources.AssettoCorsa;
+using GamesDat.Core.Reader;
+using GamesDat.Core.Telemetry.Sources.AssettoCorsa;
 using K4os.Compression.LZ4.Streams;
 using System.Runtime.InteropServices;
 using Xunit;
@@ -168,7 +168,7 @@ public class BackwardCompatibilityTests : IDisposable
         CreateLegacySessionFile(legacyPath, new[] { testData }, new[] { 1000L });
 
         // Create new file with header
-        var writer = new GameasDat.Core.Writer.BinarySessionWriter();
+        var writer = new GamesDat.Core.Writer.BinarySessionWriter();
         writer.Start(newPath);
         writer.WriteFrame(testData, 1000L);
         writer.Stop();

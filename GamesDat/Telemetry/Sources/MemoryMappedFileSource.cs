@@ -1,7 +1,7 @@
 ﻿using System.IO.MemoryMappedFiles;
 using System.Runtime.CompilerServices;
 
-namespace GameasDat.Core.Telemetry.Sources
+namespace GamesDat.Core.Telemetry.Sources
 {
     public class MemoryMappedFileSource<T> : TelemetrySourceBase<T> where T : unmanaged
     {
