@@ -33,18 +33,18 @@ namespace GamesDat.Demo
 
             try
             {
-                var physicsSource = ACCSources.CreatePhysicsSource()
+                var physicsSource = ACCSources.CreateCombinedSource()
                     .UseWriter(new BinarySessionWriter())
                     .OutputTo($"./sessions/acc_{DateTime.UtcNow:yyyyMMdd_HHmmss}.dat");
 
                 await using var session = new GameSession()
                     .AddSource(physicsSource)
-                    .OnData<ACCPhysics>(data =>
+                    .OnData<ACCCombinedData>(data =>
                     {
                         // Real-time callback - update UI, send to dashboard, etc.
-                        if (data.PacketId % 100 == 0) // Every 100 frames
+                        if (data.Physics.PacketId % 100 == 0) // Every 100 frames
                         {
-                            Console.WriteLine($"Live: {data.SpeedKmh:F1} km/h | {data.RPM} RPM | Gear {data.Gear}");
+                            Console.WriteLine($"Live: {data.Physics.SpeedKmh:F1} km/h | {data.Physics.RPM} RPM | Gear {data.Physics.Gear}");
                         }
                     });
 
