@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace GameasDat.Core.Telemetry.Sources
 {
-    public class MemoryMappedFileSource<T> : ITelemetrySource<T> where T : unmanaged
+    public class MemoryMappedFileSource<T> : TelemetrySourceBase<T> where T : unmanaged
     {
         private readonly string _mapName;
         private readonly TimeSpan _pollInterval;
@@ -16,7 +16,7 @@ namespace GameasDat.Core.Telemetry.Sources
             _pollInterval = pollInterval;
         }
 
-        public async IAsyncEnumerable<T> ReadContinuousAsync(
+        public override async IAsyncEnumerable<T> ReadContinuousAsync(
             [EnumeratorCancellation] CancellationToken ct = default)
         {
             // Open the memory-mapped file
@@ -42,7 +42,7 @@ namespace GameasDat.Core.Telemetry.Sources
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _accessor?.Dispose();
             _mmf?.Dispose();

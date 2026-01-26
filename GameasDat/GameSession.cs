@@ -19,9 +19,7 @@ namespace GameasDat.Core
             _defaultOutputDirectory = defaultOutputDirectory ?? "./sessions";
         }
 
-        public GameSession AddSource<T>(
-            ITelemetrySource<T> source,
-            Action<SourceOptions>? configure = null) where T : unmanaged
+        public GameSession AddSource<T>(ITelemetrySource<T> source) where T : unmanaged
         {
             var sourceType = source.GetType();
 
@@ -29,10 +27,7 @@ namespace GameasDat.Core
                 throw new InvalidOperationException(
                     $"Source of type {sourceType.Name} already added. Only one source per type is allowed.");
 
-            var options = new SourceOptions();
-            configure?.Invoke(options);
-
-            var outputPath = options.OutputPath;
+            var outputPath = source.OutputPath;
             if (outputPath == "auto")
             {
                 Directory.CreateDirectory(_defaultOutputDirectory);
@@ -44,7 +39,7 @@ namespace GameasDat.Core
             ISessionWriter? sessionWriter = null;
             if (outputPath != null)
             {
-                sessionWriter = options.Writer ?? new BinarySessionWriter();
+                sessionWriter = source.Writer ?? new BinarySessionWriter();
                 sessionWriter.Start(outputPath);
                 Console.WriteLine($"[{sourceType.Name}] Recording to: {outputPath}");
             }

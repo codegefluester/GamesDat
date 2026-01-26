@@ -11,7 +11,7 @@ namespace GameasDat.Core.Telemetry.Sources
     /// <summary>
     /// Monitors a directory for new or modified files matching specified patterns
     /// </summary>
-    public class FileWatcherSource : ITelemetrySource<string>
+    public class FileWatcherSource : TelemetrySourceBase<string>
     {
         private readonly string _path;
         private readonly string[] _patterns;
@@ -56,7 +56,7 @@ namespace GameasDat.Core.Telemetry.Sources
         {
         }
 
-        public async IAsyncEnumerable<string> ReadContinuousAsync(
+        public override async IAsyncEnumerable<string> ReadContinuousAsync(
             [EnumeratorCancellation] CancellationToken ct = default)
         {
             _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -136,7 +136,7 @@ namespace GameasDat.Core.Telemetry.Sources
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _cts?.Cancel();
             _cts?.Dispose();

@@ -45,17 +45,21 @@ await using var session = new GameSession(defaultOutputDirectory: "./my_races")
 
 ### Explicit Paths
 ```csharp
+var physicsSource = ACCSources.CreatePhysicsSource()
+    .OutputTo("./race_20260125/physics.dat");
+
 await using var session = new GameSession()
-    .AddSource(ACCSources.CreatePhysicsSource(), opt => opt
-        .OutputTo("./race_20260125/physics.dat"));
+    .AddSource(physicsSource);
 ```
 
 ### No Output (Real-time Only)
 ```csharp
+var physicsSource = ACCSources.CreatePhysicsSource()
+    .RealtimeOnly();
+
 await using var session = new GameSession()
-    .AddSource(ACCSources.CreatePhysicsSource(), opt => opt
-        .RealtimeOnly())
-    .OnData<ACCPhysics>(data => 
+    .AddSource(physicsSource)
+    .OnData<ACCPhysics>(data =>
         Console.WriteLine($"Speed: {data.SpeedKmh}"));
 
 await session.StartAsync();
@@ -103,9 +107,11 @@ await session.StartAsync();
 ```csharp
 using GameTelemetry.Games.RocketLeague;
 
+var replaySource = RocketLeagueSources.CreateReplaySource()
+    .RealtimeOnly();
+
 await using var session = new GameSession()
-    .AddSource(RocketLeagueSources.CreateReplaySource(), opt => opt
-        .RealtimeOnly())
+    .AddSource(replaySource)
     .OnData<string>(replayPath =>
     {
         Console.WriteLine($"New replay: {Path.GetFileName(replayPath)}");
@@ -118,10 +124,12 @@ await session.StartAsync();
 
 ### Custom Replay Folder
 ```csharp
+var replaySource = RocketLeagueSources.CreateReplaySource(
+    customPath: @"D:\Backups\RocketLeague\Replays")
+    .RealtimeOnly();
+
 await using var session = new GameSession()
-    .AddSource(RocketLeagueSources.CreateReplaySource(
-        customPath: @"D:\Backups\RocketLeague\Replays"), 
-        opt => opt.RealtimeOnly())
+    .AddSource(replaySource)
     .OnData<string>(ProcessReplay);
 
 await session.StartAsync();
@@ -228,9 +236,13 @@ await session.StartAsync();
 
 ### Combine Multiple Games
 ```csharp
+var accSource = ACCSources.CreatePhysicsSource();
+var rlSource = RocketLeagueSources.CreateReplaySource()
+    .RealtimeOnly();
+
 await using var session = new GameSession()
-    .AddSource(ACCSources.CreatePhysicsSource())
-    .AddSource(RocketLeagueSources.CreateReplaySource(), opt => opt.RealtimeOnly())
+    .AddSource(accSource)
+    .AddSource(rlSource)
     .OnData<ACCPhysics>(acc => Console.WriteLine($"ACC: {acc.SpeedKmh} km/h"))
     .OnData<string>(rl => Console.WriteLine($"RL Replay: {rl}"));
 
@@ -278,11 +290,16 @@ catch (OperationCanceledException)
 
 ### Mock Source for Unit Tests
 ```csharp
-public class MockTelemetrySource : ITelemetrySource<TestData>
+public class MockTelemetrySource : TelemetrySourceBase<TestData>
 {
     private readonly TestData[] _testData;
-    
-    public async IAsyncEnumerable<TestData> ReadContinuousAsync(
+
+    public MockTelemetrySource(TestData[] testData)
+    {
+        _testData = testData;
+    }
+
+    public override async IAsyncEnumerable<TestData> ReadContinuousAsync(
         [EnumeratorCancellation] CancellationToken ct = default)
     {
         foreach (var data in _testData)
@@ -291,12 +308,12 @@ public class MockTelemetrySource : ITelemetrySource<TestData>
             await Task.Delay(10, ct);
         }
     }
-    
-    public void Dispose() { }
 }
 
 // Usage
-var testSource = new MockTelemetrySource(generateTestData());
+var testSource = new MockTelemetrySource(generateTestData())
+    .RealtimeOnly();
+
 await using var session = new GameSession()
     .AddSource(testSource)
     .OnData<TestData>(data => Assert.IsNotNull(data));

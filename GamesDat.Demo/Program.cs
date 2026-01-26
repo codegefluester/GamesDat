@@ -33,13 +33,12 @@ namespace GamesDat.Demo
 
             try
             {
+                var physicsSource = ACCSources.CreatePhysicsSource()
+                    .UseWriter(new BinarySessionWriter())
+                    .OutputTo($"./sessions/acc_{DateTime.UtcNow:yyyyMMdd_HHmmss}.dat");
+
                 await using var session = new GameSession()
-                    .AddSource(
-                        ACCSources.CreatePhysicsSource(), 
-                        opt => opt
-                            .UseWriter(new BinarySessionWriter())
-                            .OutputTo($"./sessions/acc_{DateTime.UtcNow:yyyyMMdd_HHmmss}.dat")
-                            )
+                    .AddSource(physicsSource)
                     .OnData<ACCPhysics>(data =>
                     {
                         // Real-time callback - update UI, send to dashboard, etc.
