@@ -1,5 +1,7 @@
 ﻿using K4os.Compression.LZ4.Streams;
 using System.Runtime.InteropServices;
+using GameasDat.Core.Helpers;
+using GameasDat.Core.Models;
 
 namespace GameasDat.Core.Writer
 {
@@ -9,6 +11,7 @@ namespace GameasDat.Core.Writer
         private LZ4EncoderStream? _compressionStream;
         private readonly object _writeLock = new object();
         private int _frameCount = 0;
+        private bool _headerWritten = false;
 
         public void Start(string filePath)
         {
@@ -24,16 +27,27 @@ namespace GameasDat.Core.Writer
                 bufferSize: 4096,
                 useAsync: false);
 
-            _compressionStream = LZ4Stream.Encode(_fileStream, leaveOpen: false);
+            // Note: Compression stream created in WriteFrame after header is written
+            _headerWritten = false;
         }
 
         public void WriteFrame<T>(T data, long timestamp) where T : unmanaged
         {
-            if (_compressionStream == null || _fileStream == null)
+            if (_fileStream == null)
                 throw new InvalidOperationException("Writer not started");
 
             lock (_writeLock)
             {
+                // Write header on first frame
+                if (!_headerWritten)
+                {
+                    WriteHeader<T>();
+                    _headerWritten = true;
+                }
+
+                if (_compressionStream == null)
+                    throw new InvalidOperationException("Compression stream not initialized");
+
                 // Write timestamp (8 bytes)
                 Span<byte> timestampBytes = stackalloc byte[8];
                 BitConverter.TryWriteBytes(timestampBytes, timestamp);
@@ -62,6 +76,36 @@ namespace GameasDat.Core.Writer
                     _fileStream.Flush(flushToDisk: true);  // Force OS to write to disk
                 }
             }
+        }
+
+        private void WriteHeader<T>() where T : unmanaged
+        {
+            if (_fileStream == null)
+                throw new InvalidOperationException("File stream not initialized");
+
+            // Extract metadata from type attributes
+            var gameId = MetadataHelper.GetGameId<T>();
+            var (major, minor, patch) = MetadataHelper.GetDataVersion<T>();
+            var typeName = typeof(T).AssemblyQualifiedName!;
+            var structSize = Marshal.SizeOf<T>();
+
+            // Create header
+            var header = new SessionFileHeader
+            {
+                GameId = gameId,
+                TypeName = typeName,
+                DataVersion = SessionFileHeader.EncodeVersion(major, minor, patch),
+                StructSize = structSize
+            };
+
+            // Write header to base file stream (before compression)
+            header.WriteToStream(_fileStream);
+
+            // Log header details
+            Console.WriteLine($"Writing session: Game={gameId}, Type={typeof(T).Name}, Version={major}.{minor}.{patch}");
+
+            // Now create compression stream for data frames
+            _compressionStream = LZ4Stream.Encode(_fileStream, leaveOpen: false);
         }
 
         public void Stop()

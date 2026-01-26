@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using GameasDat.Core.Models;
 
 namespace GameasDat.Core.Reader
 {
@@ -15,9 +16,43 @@ namespace GameasDat.Core.Reader
             [EnumeratorCancellation] CancellationToken ct = default) where T : unmanaged
         {
             await using var fileStream = File.OpenRead(filePath);
-            await using var stream = LZ4Stream.Decode(fileStream, leaveOpen: false);
+
+            // Try to read header
+            var magicBuffer = new byte[4];
+            var bytesRead = await fileStream.ReadAsync(magicBuffer, ct);
 
             int expectedSize = Marshal.SizeOf<T>();
+
+            SessionFileHeader? header = null;
+            if (bytesRead == 4 && magicBuffer.SequenceEqual(SessionFileHeader.MagicBytes))
+            {
+                // Rewind to read full header
+                fileStream.Seek(0, SeekOrigin.Begin);
+                header = SessionFileHeader.ReadFromStream(fileStream);
+
+                // Validate metadata
+                var expectedType = typeof(T).AssemblyQualifiedName!;
+                if (header.TypeName != expectedType)
+                    throw new InvalidOperationException(
+                        $"Type mismatch: File contains '{header.TypeName}', expected '{expectedType}'");
+
+                if (header.StructSize != expectedSize)
+                    throw new InvalidOperationException(
+                        $"Size mismatch: File has struct size {header.StructSize} bytes, expected {expectedSize} bytes");
+
+                // Log metadata
+                var (major, minor, patch) = SessionFileHeader.DecodeVersion(header.DataVersion);
+                Console.WriteLine($"Reading session: Game={header.GameId}, Type={typeof(T).Name}, Version={major}.{minor}.{patch}");
+            }
+            else
+            {
+                // Legacy file without header
+                Console.WriteLine("WARNING: Reading legacy session file without metadata header");
+                fileStream.Seek(0, SeekOrigin.Begin);
+            }
+
+            // Continue with LZ4 decompression and frame reading
+            await using var stream = LZ4Stream.Decode(fileStream, leaveOpen: false);
             int frameNumber = 0;
 
             while (!ct.IsCancellationRequested)

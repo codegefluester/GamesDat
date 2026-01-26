@@ -1,8 +1,10 @@
 ﻿using System.Runtime.InteropServices;
-
+using GameasDat.Core.Attributes;
 
 namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
 {
+    [GameId("ACC")]
+    [DataVersion(1, 0, 0)]
     [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
     public unsafe struct ACCStatic
     {

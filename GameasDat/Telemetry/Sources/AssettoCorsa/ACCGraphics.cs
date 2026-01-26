@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using GameasDat.Core.Attributes;
 
 namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
 {
@@ -6,6 +7,8 @@ namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
     /// ACC Graphics data from acpmf_graphics memory-mapped file
     /// Updated at ~10Hz
     /// </summary>
+    [GameId("ACC")]
+    [DataVersion(1, 0, 0)]
     [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
     public unsafe struct ACCGraphics
     {

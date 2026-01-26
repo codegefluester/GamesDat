@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using GameasDat.Core.Attributes;
 
 namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
 {
@@ -7,6 +8,8 @@ namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
     /// Combined data structure containing all ACC telemetry streams.
     /// Physics updated at 100Hz, Graphics at 10Hz, Static at 5s intervals.
     /// </summary>
+    [GameId("ACC")]
+    [DataVersion(1, 0, 0)]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ACCCombinedData
     {

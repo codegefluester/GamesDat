@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using GameasDat.Core.Attributes;
 
 namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
 {
@@ -6,6 +7,8 @@ namespace GameasDat.Core.Telemetry.Sources.AssettoCorsa
     /// ACC Physics data from acpmf_physics memory-mapped file
     /// Updated at ~100Hz
     /// </summary>
+    [GameId("ACC")]
+    [DataVersion(1, 0, 0)]
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct ACCPhysics
     {
