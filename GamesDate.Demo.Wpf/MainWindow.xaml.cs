@@ -1,15 +1,18 @@
-﻿using System.Windows;
+using System.Windows;
+using GamesDate.Demo.Wpf.ViewModels;
 
-namespace GamesDate.Demo.Wpf
+namespace GamesDate.Demo.Wpf;
+
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    private readonly MainWindowViewModel _viewModel;
+
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        _viewModel = new MainWindowViewModel();
+        DataContext = _viewModel;
+
+        Closed += (s, e) => _viewModel.Dispose();
     }
 }
