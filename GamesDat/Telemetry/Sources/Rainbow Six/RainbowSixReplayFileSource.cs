@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using GamesDat.Core.Helpers;
+using GamesDat.Core.Steam;
 
 namespace GamesDat.Core.Telemetry.Sources.Rainbow_Six
 {
@@ -8,6 +8,8 @@ namespace GamesDat.Core.Telemetry.Sources.Rainbow_Six
     /// </summary>
     public class RainbowSixReplayFileSource : FileWatcherSourceBase
     {
+        public const uint RainbowSixSiegeSteamAppId = 359550;
+
         /// <summary>
         /// Create a Rainbow Six Siege replay file source with custom options
         /// </summary>
@@ -25,7 +27,7 @@ namespace GamesDat.Core.Telemetry.Sources.Rainbow_Six
             : base(
                 path: customPath ?? GetDefaultReplayPath(),
                 pattern: "*.rec", // R6 Siege replay files
-                includeSubdirectories: false,
+                includeSubdirectories: true,
                 debounceDelay: TimeSpan.FromSeconds(3))
         {
         }
@@ -50,24 +52,27 @@ namespace GamesDat.Core.Telemetry.Sources.Rainbow_Six
         /// </summary>
         public static string GetDefaultReplayPath()
         {
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            // R6 stores replays in Documents\My Games\Rainbow Six - Siege\[profile_id]\replays
-            // We'll need to scan for profile folders
-            var baseGamePath = System.IO.Path.Combine(userProfile, "Documents", "My Games", "Rainbow Six - Siege");
-
-            if (!Directory.Exists(baseGamePath))
-                throw new DirectoryNotFoundException($"Rainbow Six Siege game folder not found: {baseGamePath}");
-
-            // Find first profile folder with replays subfolder
-            var profileDirs = Directory.GetDirectories(baseGamePath);
-            foreach (var profileDir in profileDirs)
+            var steamLibraryPath = SteamPathLocator.GetSteamVDFPath();
+            if (steamLibraryPath.IsError)
             {
-                var replaysPath = System.IO.Path.Combine(profileDir, "replays");
-                if (Directory.Exists(replaysPath))
-                    return replaysPath;
+                throw new InvalidOperationException($"Could not locate Steam library folders: {steamLibraryPath.Error.Message}");
             }
 
-            throw new DirectoryNotFoundException("Rainbow Six Siege replay folder not found in any profile");
+            var parserResult = SteamLibraryParser.Parse(steamLibraryPath.Path);
+            if (parserResult.IsError)
+            {
+                throw new InvalidOperationException($"Could not parse Steam library folders: {parserResult.Error}");
+            }
+
+            var parser = parserResult.Parser;
+            var game = parser.TryGetGame(RainbowSixSiegeSteamAppId);
+            if (game.IsError)
+            {
+                var steamPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86, Environment.SpecialFolderOption.DoNotVerify);
+                return System.IO.Path.Combine(steamPath, "Steam", "steamapps", "common", "Tom Clancy's Rainbow Six Siege", "MatchReplay");
+            }
+
+            return System.IO.Path.Combine(game.Game.InstallPath, "Tom Clancy's Rainbow Six Siege", "MatchReplay");
         }
     }
 }
