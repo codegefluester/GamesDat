@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="GameFinder.Common.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NexusMods.Paths" />
+        <PackageReference Include="FluentResults" />
+        <PackageReference Include="OneOf" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+    </ItemGroup>
+</Project>
