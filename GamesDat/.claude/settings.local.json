@@ -6,7 +6,9 @@
       "Bash(dotnet remove package:*)",
       "WebSearch",
       "Bash(ls:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(dir /s /b \"..\\\\GamesDate.Demo.Wpf\\\\ViewModels\\\\*.cs\")",
+      "Bash(dir /s /b \"..\\\\GamesDate.Demo.Wpf\\\\Views\\\\*.xaml\")"
     ]
   }
 }

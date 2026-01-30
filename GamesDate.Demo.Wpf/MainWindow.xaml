@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:GamesDate.Demo.Wpf.Views"
         xmlns:vm="clr-namespace:GamesDate.Demo.Wpf.ViewModels"
         mc:Ignorable="d"
-        Title="GamesDat Demo - File Watcher"
+        Title="GamesDat Demo - Telemetry"
         Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}">
@@ -16,12 +16,8 @@
             <TabItem Header="File Watchers">
                 <views:FileWatcherTabView DataContext="{Binding FileWatcherTab}"/>
             </TabItem>
-            <TabItem Header="Realtime (Future)">
-                <TextBlock Text="{Binding RealtimeTab.PlaceholderText}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontSize="16"
-                           Foreground="Gray"/>
+            <TabItem Header="Realtime Telemetry">
+                <views:RealtimeTabView DataContext="{Binding RealtimeTab}"/>
             </TabItem>
         </TabControl>
     </Grid>

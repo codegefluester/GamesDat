@@ -11,7 +11,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private RealtimeTabViewModel _realtimeTab;
 
     [ObservableProperty]
-    private int _selectedTabIndex;
+    private int _selectedTabIndex = 1; // Start with Realtime tab (Trackmania)
 
     public MainWindowViewModel()
     {

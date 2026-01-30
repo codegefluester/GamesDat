@@ -10,6 +10,7 @@ using GamesDat.Core.Telemetry.Sources.Fortnite;
 using GamesDat.Core.Telemetry.Sources.Valorant;
 using GamesDat.Core.Telemetry.Sources.DOTA2;
 using GamesDat.Core.Telemetry.Sources.Brawlhalla;
+using GamesDat.Core.Telemetry.Sources.Trackmania;
 using GamesDate.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -45,6 +46,34 @@ public partial class FileWatcherTabViewModel : ViewModelBase, IDisposable
 
     private void InitializeBuiltInSources()
     {
+        // Add Trackmania source
+        try
+        {
+            var trackmaniaPath = TrackmaniaReplayFileSource.GetDefaultReplayPath();
+            var trackmaniaSource = new FileWatcherSourceViewModel(
+                "Trackmania",
+                trackmaniaPath,
+                "*.Replay.Gbx",
+                () => new TrackmaniaReplayFileSource());
+
+            trackmaniaSource.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(trackmaniaSource);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "Trackmania", "Replays");
+
+            var trackmaniaSource = new FileWatcherSourceViewModel(
+                "Trackmania (Not Installed)",
+                defaultPath,
+                "*.Replay.Gbx",
+                null);
+            Sources.Add(trackmaniaSource);
+        }
+
         // Add Rocket League source
         try
         {
