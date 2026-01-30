@@ -4,6 +4,11 @@ using GamesDat.Core.Telemetry.Sources;
 using GamesDat.Core.Telemetry.Sources.Counter_Strike;
 using GamesDat.Core.Telemetry.Sources.Rainbow_Six;
 using GamesDat.Core.Telemetry.Sources.Rocket_League;
+using GamesDat.Core.Telemetry.Sources.Overwatch2;
+using GamesDat.Core.Telemetry.Sources.PUBG;
+using GamesDat.Core.Telemetry.Sources.Fortnite;
+using GamesDat.Core.Telemetry.Sources.Valorant;
+using GamesDat.Core.Telemetry.Sources.DOTA2;
 using GamesDate.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -118,6 +123,149 @@ public partial class FileWatcherTabViewModel : ViewModelBase, IDisposable
                 "*.dem",
                 null);
             Sources.Add(csgoSource);
+        }
+
+        // Add DOTA 2 source
+        try
+        {
+            var dota2Path = DOTA2ReplayFileSource.GetDefaultReplayPath();
+            var dota2Source = new FileWatcherSourceViewModel(
+                "DOTA 2",
+                dota2Path,
+                "*.dem",
+                () => new DOTA2ReplayFileSource());
+            dota2Source.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(dota2Source);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                "Steam", "steamapps", "common", "dota 2 beta", "game", "dota", "replays");
+            var dota2Source = new FileWatcherSourceViewModel(
+                "DOTA 2 (Not Installed)",
+                defaultPath,
+                "*.dem",
+                null);
+            Sources.Add(dota2Source);
+        }
+        catch (InvalidOperationException)
+        {
+            // Steam not installed or library not found
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                "Steam", "steamapps", "common", "dota 2 beta", "game", "dota", "replays");
+            var dota2Source = new FileWatcherSourceViewModel(
+                "DOTA 2 (Not Installed)",
+                defaultPath,
+                "*.dem",
+                null);
+            Sources.Add(dota2Source);
+        }
+
+        // Add Overwatch 2 source
+        try
+        {
+            var ow2Path = Overwatch2HighlightFileSource.GetDefaultReplayPath();
+            var ow2Source = new FileWatcherSourceViewModel(
+                "Overwatch 2",
+                ow2Path,
+                "*.mp4",
+                () => new Overwatch2HighlightFileSource());
+            ow2Source.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(ow2Source);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "Overwatch", "videos", "overwatch");
+            var ow2Source = new FileWatcherSourceViewModel(
+                "Overwatch 2 (Not Installed)",
+                defaultPath,
+                "*.mp4",
+                null);
+            Sources.Add(ow2Source);
+        }
+
+        // Add Valorant source
+        try
+        {
+            var valorantPath = ValorantReplayFileSource.GetDefaultReplayPath();
+            var valorantSource = new FileWatcherSourceViewModel(
+                "Valorant",
+                valorantPath,
+                "*.dem",
+                () => new ValorantReplayFileSource());
+            valorantSource.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(valorantSource);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "VALORANT", "Saved", "Demos");
+            var valorantSource = new FileWatcherSourceViewModel(
+                "Valorant (Not Installed)",
+                defaultPath,
+                "*.dem",
+                null);
+            Sources.Add(valorantSource);
+        }
+
+        // Add PUBG source
+        try
+        {
+            var pubgPath = PUBGReplayFileSource.GetDefaultReplayPath();
+            var pubgSource = new FileWatcherSourceViewModel(
+                "PUBG: Battlegrounds",
+                pubgPath,
+                "*.replayinfo",
+                () => new PUBGReplayFileSource());
+            pubgSource.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(pubgSource);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "TslGame", "Saved", "Demos");
+            var pubgSource = new FileWatcherSourceViewModel(
+                "PUBG: Battlegrounds (Not Installed)",
+                defaultPath,
+                "*.replayinfo",
+                null);
+            Sources.Add(pubgSource);
+        }
+
+        // Add Fortnite source
+        try
+        {
+            var fortnitePath = FortniteReplayFileSource.GetDefaultReplayPath();
+            var fortniteSource = new FileWatcherSourceViewModel(
+                "Fortnite",
+                fortnitePath,
+                "*.replay",
+                () => new FortniteReplayFileSource());
+            fortniteSource.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(fortniteSource);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "FortniteGame", "Saved", "Demos");
+            var fortniteSource = new FileWatcherSourceViewModel(
+                "Fortnite (Not Installed)",
+                defaultPath,
+                "*.replay",
+                null);
+            Sources.Add(fortniteSource);
         }
     }
 

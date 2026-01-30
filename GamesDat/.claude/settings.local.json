@@ -3,7 +3,9 @@
     "allow": [
       "Bash(dotnet build:*)",
       "Bash(dotnet add package:*)",
-      "Bash(dotnet remove package:*)"
+      "Bash(dotnet remove package:*)",
+      "WebSearch",
+      "Bash(ls:*)"
     ]
   }
 }
