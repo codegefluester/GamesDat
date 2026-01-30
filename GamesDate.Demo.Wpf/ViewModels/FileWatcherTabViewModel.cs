@@ -9,6 +9,7 @@ using GamesDat.Core.Telemetry.Sources.PUBG;
 using GamesDat.Core.Telemetry.Sources.Fortnite;
 using GamesDat.Core.Telemetry.Sources.Valorant;
 using GamesDat.Core.Telemetry.Sources.DOTA2;
+using GamesDat.Core.Telemetry.Sources.Brawlhalla;
 using GamesDate.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -266,6 +267,32 @@ public partial class FileWatcherTabViewModel : ViewModelBase, IDisposable
                 "*.replay",
                 null);
             Sources.Add(fortniteSource);
+        }
+
+        // Add Brawlhalla source
+        try
+        {
+            var brawlhallaPath = BrawlhallaReplayFileSource.GetDefaultReplayPath();
+            var brawlhallaSource = new FileWatcherSourceViewModel(
+                "Brawlhalla",
+                brawlhallaPath,
+                "*.replay",
+                () => new BrawlhallaReplayFileSource());
+            brawlhallaSource.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(brawlhallaSource);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "BrawlhallaReplays");
+            var brawlhallaSource = new FileWatcherSourceViewModel(
+                "Brawlhalla (Not Installed)",
+                defaultPath,
+                "*.replay",
+                null);
+            Sources.Add(brawlhallaSource);
         }
     }
 

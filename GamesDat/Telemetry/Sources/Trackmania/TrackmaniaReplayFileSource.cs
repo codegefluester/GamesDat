@@ -83,7 +83,7 @@ namespace GamesDat.Core.Telemetry.Sources.Trackmania
                     "Make sure Trackmania is installed and you've played at least one game.\n" +
                     "Expected locations:\n" +
                     "  Trackmania (2020): Documents\\Trackmania\\Replays\n" +
-                    "  Maniaplanet: Documents\\ManiaPlanet\\Replays");
+                    "  Maniaplanet: Documents\\ManiaPlanet\\Replays"); 
         }
     }
 }
