@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GamesDat.Core.Telemetry;
 using GamesDat.Core.Telemetry.Sources;
 using GamesDate.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
@@ -58,8 +59,8 @@ public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
             IsRunning = true;
             StatusMessage = "Running...";
 
-            // Check if source is a MemoryMappedFileSource<TrackmaniaData>
-            if (sourceObj is MemoryMappedFileSource<GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaData> trackmaniaSource)
+            // Check if source is a ITelemetrySource<TrackmaniaDataV3>
+            if (sourceObj is ITelemetrySource<GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaDataV3> trackmaniaSource)
             {
                 await foreach (var data in trackmaniaSource.ReadContinuousAsync(_cts.Token))
                 {
@@ -91,18 +92,32 @@ public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private void UpdateTrackmaniaDisplay(GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaData data)
+    private void UpdateTrackmaniaDisplay(GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaDataV3 data)
     {
-        CurrentSpeed = $"{data.Speed:F1} km/h";
-        CurrentGear = data.Gear.ToString();
-        CurrentRPM = $"{data.EngineRpm:F0}";
+        CurrentSpeed = $"{data.Vehicle.SpeedMeter} km/h";
+        CurrentGear = data.Vehicle.EngineCurGear.ToString();
+        CurrentRPM = $"{data.Vehicle.EngineRpm:F0}";
+
+        // Extended diagnostic info
+        var gameStateText = data.Game.State.ToString();
+        var raceStateText = data.Race.State.ToString();
+
+        var diagnosticInfo = $"GameState: {gameStateText}, " +
+                           $"RaceState: {raceStateText}, " +
+                           $"RaceTime: {data.Race.Time}ms, " +
+                           $"Pos: ({data.Object.Translation.X:F1}, {data.Object.Translation.Y:F1}, {data.Object.Translation.Z:F1}), " +
+                           $"Vel: ({data.Object.Velocity.X:F1}, {data.Object.Velocity.Y:F1}, {data.Object.Velocity.Z:F1}), " +
+                           $"Checkpoints: {data.Race.NbCheckpoints}, " +
+                           $"Player: '{data.GetPlayerName()}', " +
+                           $"Map: '{data.GetMapName()}', " +
+                           $"Variant: '{data.GetGameplayVariant()}'";
 
         var dataPoint = new TelemetryDataPoint
         {
             Timestamp = DateTime.Now,
             SourceName = SourceName,
             DataType = "Telemetry",
-            Value = $"Speed: {data.Speed:F1}, Gear: {data.Gear}, RPM: {data.EngineRpm:F0}"
+            Value = $"Speed: {data.Vehicle.SpeedMeter}, Gear: {data.Vehicle.EngineCurGear}, RPM: {data.Vehicle.EngineRpm:F0} | {diagnosticInfo}"
         };
 
         DataPoints.Insert(0, dataPoint);

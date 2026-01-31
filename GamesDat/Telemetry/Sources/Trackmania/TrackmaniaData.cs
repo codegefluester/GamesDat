@@ -11,21 +11,10 @@ namespace GamesDat.Core.Telemetry.Sources.Trackmania
     public unsafe struct TrackmaniaData
     {
         /// <summary>
-        /// Version of the telemetry structure (should be 1)
-        /// </summary>
-        public uint Version;
-
-        /// <summary>
         /// Current game state
         /// 0 = Menu, 1 = Running, 2 = Paused
         /// </summary>
         public uint State;
-
-        // === Update Info ===
-        /// <summary>
-        /// Time when the data was last updated (milliseconds)
-        /// </summary>
-        public uint UpdateNumber;
 
         // === Race Data ===
         /// <summary>

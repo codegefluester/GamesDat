@@ -17,10 +17,10 @@ namespace GamesDat.Core.Telemetry.Sources.Trackmania
         /// Creates a telemetry source for Trackmania that reads from the ManiaPlanet_Telemetry shared memory
         /// </summary>
         /// <param name="pollInterval">How often to poll the shared memory for updates. Default is 16ms (~60Hz)</param>
-        /// <returns>A configured MemoryMappedFileSource for Trackmania telemetry</returns>
-        public static MemoryMappedFileSource<TrackmaniaData> CreateTelemetrySource(TimeSpan? pollInterval = null)
+        /// <returns>A configured TrackmaniaMemoryMappedFileSource for Trackmania telemetry</returns>
+        public static TrackmaniaMemoryMappedFileSource CreateTelemetrySource(TimeSpan? pollInterval = null)
         {
-            return new MemoryMappedFileSource<TrackmaniaData>(
+            return new TrackmaniaMemoryMappedFileSource(
                 TelemetryMapName,
                 pollInterval ?? TimeSpan.FromMilliseconds(16) // ~60Hz default
             );
