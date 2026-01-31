@@ -1,18 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GamesDat.Core;
 using GamesDat.Core.Telemetry;
 using GamesDat.Core.Telemetry.Sources;
 using GamesDate.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text;
 
 namespace GamesDate.Demo.Wpf.ViewModels;
 
 public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
 {
-    private readonly Func<IDisposable>? _sourceFactory;
-    private IDisposable? _source;
+    private readonly Func<GameSession>? _sessionFactory;
+    private GameSession? _session;
     private CancellationTokenSource? _cts;
     private readonly SynchronizationContext? _syncContext;
+    private StringWriter? _consoleCapture;
 
     [ObservableProperty]
     private string _sourceName = "";
@@ -39,64 +43,137 @@ public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
 
     public RealtimeSourceViewModel(
         string sourceName,
-        Func<IDisposable>? sourceFactory)
+        Func<GameSession>? sessionFactory)
     {
         _sourceName = sourceName;
-        _sourceFactory = sourceFactory;
+        _sessionFactory = sessionFactory;
         _syncContext = SynchronizationContext.Current;
     }
 
     [RelayCommand(CanExecute = nameof(CanStart))]
     private async Task StartAsync()
     {
-        if (IsRunning || _sourceFactory == null) return;
+        if (IsRunning || _sessionFactory == null) return;
 
         try
         {
-            var sourceObj = _sourceFactory();
-            _source = sourceObj;
+            // Capture console output to see any errors
+            _consoleCapture = new StringWriter();
+            var originalOut = Console.Out;
+            Console.SetOut(new TeeWriter(originalOut, _consoleCapture));
+
+            _session = _sessionFactory();
             _cts = new CancellationTokenSource();
             IsRunning = true;
-            StatusMessage = "Running...";
+            StatusMessage = "Starting...";
 
-            // Check if source is a ITelemetrySource<TrackmaniaDataV3>
-            if (sourceObj is ITelemetrySource<GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaDataV3> trackmaniaSource)
+            await _session.StartAsync(_cts.Token);
+
+            // Give it a moment to start
+            await Task.Delay(1000);
+
+            // Check if we received any error messages
+            var consoleOutput = _consoleCapture.ToString();
+            if (consoleOutput.Contains("ERROR") || consoleOutput.Contains("Error"))
             {
-                await foreach (var data in trackmaniaSource.ReadContinuousAsync(_cts.Token))
+                StatusMessage = $"Error: {consoleOutput.Split('\n').FirstOrDefault(l => l.Contains("ERROR") || l.Contains("Error")) ?? "Unknown error"}";
+                IsRunning = false;
+            }
+            else if (DataPointCount == 0)
+            {
+                StatusMessage = "Waiting for data... (Make sure you're in a race)";
+            }
+            else
+            {
+                StatusMessage = "Running...";
+            }
+
+            // Session is now running in the background
+            // Monitor console output for errors
+            _ = MonitorSessionAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = "Stopped";
+            IsRunning = false;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Startup Error: {ex.Message}";
+            IsRunning = false;
+        }
+    }
+
+    private async Task MonitorSessionAsync()
+    {
+        try
+        {
+            while (IsRunning && _cts != null && !_cts.Token.IsCancellationRequested)
+            {
+                await Task.Delay(2000, _cts.Token);
+
+                // Check console output for errors
+                if (_consoleCapture != null)
                 {
-                    if (_syncContext != null)
+                    var output = _consoleCapture.ToString();
+                    var lines = output.Split('\n');
+                    var errorLine = lines.LastOrDefault(l => l.Contains("ERROR") || l.Contains("Error"));
+
+                    if (errorLine != null && !StatusMessage.Contains("Error"))
                     {
-                        _syncContext.Post(_ =>
-                        {
-                            UpdateTrackmaniaDisplay(data);
-                        }, null);
-                    }
-                    else
-                    {
-                        UpdateTrackmaniaDisplay(data);
+                        StatusMessage = $"Error: {errorLine.Trim()}";
                     }
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = "Stopped";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Error: {ex.Message}";
-        }
-        finally
-        {
-            IsRunning = false;
+            // Normal cancellation
         }
     }
 
-    private void UpdateTrackmaniaDisplay(GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaDataV3 data)
+    // Helper class to write to multiple TextWriters
+    private class TeeWriter : TextWriter
+    {
+        private readonly TextWriter _writer1;
+        private readonly TextWriter _writer2;
+
+        public TeeWriter(TextWriter writer1, TextWriter writer2)
+        {
+            _writer1 = writer1;
+            _writer2 = writer2;
+        }
+
+        public override Encoding Encoding => _writer1.Encoding;
+
+        public override void Write(char value)
+        {
+            _writer1.Write(value);
+            _writer2.Write(value);
+        }
+
+        public override void WriteLine(string? value)
+        {
+            _writer1.WriteLine(value);
+            _writer2.WriteLine(value);
+        }
+    }
+
+    public void UpdateTrackmaniaDisplay(GamesDat.Core.Telemetry.Sources.Trackmania.TrackmaniaDataV3 data)
     {
         CurrentSpeed = $"{data.Vehicle.SpeedMeter} km/h";
         CurrentGear = data.Vehicle.EngineCurGear.ToString();
         CurrentRPM = $"{data.Vehicle.EngineRpm:F0}";
+
+        // Update status to show we're receiving data
+        if (DataPointCount == 0)
+        {
+            StatusMessage = "Receiving data...";
+        }
+        else if (DataPointCount % 100 == 0)
+        {
+            StatusMessage = $"Running... ({DataPointCount} frames)";
+        }
 
         // Extended diagnostic info
         var gameStateText = data.Game.State.ToString();
@@ -128,14 +205,18 @@ public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
         DataPointCount = DataPoints.Count;
     }
 
-    private bool CanStart() => !IsRunning && _sourceFactory != null;
+    private bool CanStart() => !IsRunning && _sessionFactory != null;
 
     [RelayCommand(CanExecute = nameof(CanStop))]
-    private void Stop()
+    private async Task Stop()
     {
         _cts?.Cancel();
-        _source?.Dispose();
-        _source = null;
+        if (_session != null)
+        {
+            await _session.StopAsync();
+            await _session.DisposeAsync();
+            _session = null;
+        }
         IsRunning = false;
         StatusMessage = "Stopped";
     }
@@ -160,8 +241,12 @@ public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
-        Stop();
+        _cts?.Cancel();
+        _session?.StopAsync().GetAwaiter().GetResult();
+        _session?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        _session = null;
         _cts?.Dispose();
+        _consoleCapture?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

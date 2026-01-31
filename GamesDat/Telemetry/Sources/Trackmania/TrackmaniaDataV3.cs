@@ -1,3 +1,4 @@
+using GamesDat.Core.Attributes;
 using System.Runtime.InteropServices;
 
 namespace GamesDat.Core.Telemetry.Sources.Trackmania
@@ -6,7 +7,7 @@ namespace GamesDat.Core.Telemetry.Sources.Trackmania
     /// Correct Trackmania telemetry data structure (Version 3) from ManiaPlanet_Telemetry shared memory
     /// Source: https://github.com/Electron-x/TMTelemetry/blob/master/maniaplanet_telemetry.h
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1), GameId("Trackmania"), DataVersion(1,0,0)]
     public unsafe struct TrackmaniaDataV3
     {
         // === Game State ===

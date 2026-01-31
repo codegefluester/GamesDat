@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GamesDat.Core;
 using GamesDat.Core.Telemetry.Sources.Trackmania;
+using GamesDat.Core.Writer;
 using System.Collections.ObjectModel;
 
 namespace GamesDate.Demo.Wpf.ViewModels;
@@ -20,10 +22,55 @@ public partial class RealtimeTabViewModel : ViewModelBase, IDisposable
     private void InitializeBuiltInSources()
     {
         // Add Trackmania source - first realtime source
+        RealtimeSourceViewModel? trackmaniaSourceRef = null;
+
         var trackmaniaSource = new RealtimeSourceViewModel(
             "Trackmania",
-            () => TrackmaniaMemoryMappedSource.CreateTelemetrySource());
+            () =>
+            {
+                var outputPath = $"./sessions/trackmania_session_{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}.dat";
 
+                var source = TrackmaniaMemoryMappedSource
+                    .CreateTelemetrySource()
+                    .OutputTo(outputPath)
+                    .UseWriter(new BinarySessionWriter());
+
+                var session = new GameSession(defaultOutputDirectory: "./sessions")
+                    .AddSource(source)
+                    .OnData<TrackmaniaDataV3>(data =>
+                    {
+                        // Real-time callback for UI updates
+                        // Update happens on background thread, so marshal to UI thread
+                        try
+                        {
+                            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                            if (dispatcher != null)
+                            {
+                                dispatcher.BeginInvoke(() =>
+                                {
+                                    try
+                                    {
+                                        trackmaniaSourceRef?.UpdateTrackmaniaDisplay(data);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        if (trackmaniaSourceRef != null)
+                                            trackmaniaSourceRef.StatusMessage = $"UI Error: {ex.Message}";
+                                    }
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Callback error: {ex.Message}");
+                        }
+                    });
+
+                return session;
+            }
+        );
+
+        trackmaniaSourceRef = trackmaniaSource;
         Sources.Add(trackmaniaSource);
     }
 
