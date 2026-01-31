@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="clr-namespace:GamesDate.Demo.Wpf.Converters">
+                    xmlns:converters="clr-namespace:GamesDat.Demo.Wpf.Converters">
 
     <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
 

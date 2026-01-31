@@ -1,6 +1,6 @@
 using System.Windows.Controls;
 
-namespace GamesDate.Demo.Wpf.Views;
+namespace GamesDat.Demo.Wpf.Views;
 
 public partial class FileWatcherTabView : UserControl
 {

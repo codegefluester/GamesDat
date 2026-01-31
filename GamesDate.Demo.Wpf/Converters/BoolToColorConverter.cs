@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace GamesDate.Demo.Wpf.Converters;
+namespace GamesDat.Demo.Wpf.Converters;
 
 public class BoolToColorConverter : IValueConverter
 {

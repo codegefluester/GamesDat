@@ -3,12 +3,12 @@ using CommunityToolkit.Mvvm.Input;
 using GamesDat.Core;
 using GamesDat.Core.Telemetry;
 using GamesDat.Core.Telemetry.Sources;
-using GamesDate.Demo.Wpf.Models;
+using GamesDat.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 
-namespace GamesDate.Demo.Wpf.ViewModels;
+namespace GamesDat.Demo.Wpf.ViewModels;
 
 public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
 {

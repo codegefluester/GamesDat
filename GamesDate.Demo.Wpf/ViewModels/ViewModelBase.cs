@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace GamesDate.Demo.Wpf.ViewModels;
+namespace GamesDat.Demo.Wpf.ViewModels;
 
 public abstract class ViewModelBase : ObservableObject
 {

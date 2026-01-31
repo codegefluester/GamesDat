@@ -1,4 +1,4 @@
-namespace GamesDate.Demo.Wpf.Models;
+namespace GamesDat.Demo.Wpf.Models;
 
 public class TelemetryDataPoint
 {

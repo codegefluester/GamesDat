@@ -1,7 +1,7 @@
 using System.Windows;
-using GamesDate.Demo.Wpf.ViewModels;
+using GamesDat.Demo.Wpf.ViewModels;
 
-namespace GamesDate.Demo.Wpf;
+namespace GamesDat.Demo.Wpf;
 
 public partial class MainWindow : Window
 {

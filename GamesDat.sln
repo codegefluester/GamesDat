@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDat.Demo", "GamesDat.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDat.Tests", "GamesDat.Tests\GamesDat.Tests.csproj", "{1F791459-86D4-4088-8D00-2BF792001A27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDate.Demo.Wpf", "GamesDate.Demo.Wpf\GamesDate.Demo.Wpf.csproj", "{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesDat.Demo.Wpf", "GamesDate.Demo.Wpf\GamesDat.Demo.Wpf.csproj", "{D49FE018-0324-44C8-8BD6-C6CF0C9C9A2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

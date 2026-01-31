@@ -5,7 +5,7 @@ using GamesDat.Core.Telemetry.Sources.Trackmania;
 using GamesDat.Core.Writer;
 using System.Collections.ObjectModel;
 
-namespace GamesDate.Demo.Wpf.ViewModels;
+namespace GamesDat.Demo.Wpf.ViewModels;
 
 public partial class RealtimeTabViewModel : ViewModelBase, IDisposable
 {

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
-namespace GamesDate.Demo.Wpf
+namespace GamesDat.Demo.Wpf
 {
     /// <summary>
     /// Interaction logic for App.xaml

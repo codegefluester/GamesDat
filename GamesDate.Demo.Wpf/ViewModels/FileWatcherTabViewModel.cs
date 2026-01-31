@@ -11,12 +11,12 @@ using GamesDat.Core.Telemetry.Sources.Valorant;
 using GamesDat.Core.Telemetry.Sources.DOTA2;
 using GamesDat.Core.Telemetry.Sources.Brawlhalla;
 using GamesDat.Core.Telemetry.Sources.Trackmania;
-using GamesDate.Demo.Wpf.Models;
+using GamesDat.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 
-namespace GamesDate.Demo.Wpf.ViewModels;
+namespace GamesDat.Demo.Wpf.ViewModels;
 
 public partial class FileWatcherTabViewModel : ViewModelBase, IDisposable
 {
