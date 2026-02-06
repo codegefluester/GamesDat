@@ -23,7 +23,7 @@ namespace GamesDat.Core.Telemetry.Sources.Valorant
             return new FileWatcherOptions
             {
                 Path = customPath ?? GetDefaultReplayPath(),
-                Patterns = new[] { "*.dem" },
+                Patterns = new[] { "*.vrf" },
                 IncludeSubdirectories = false,
                 DebounceDelay = TimeSpan.FromSeconds(2)
             };
