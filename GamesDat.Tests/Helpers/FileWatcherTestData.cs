@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GamesDat.Core.Telemetry.Sources;
+using GamesDat.Core.Telemetry.Sources.Tekken8;
 
 namespace GamesDat.Tests.Helpers;
 
@@ -21,15 +23,19 @@ public class FileWatcherTestData
 
         foreach (var sourceType in sources)
         {
-            // Skip Tekken8 for now (uses wildcard pattern "*.*" with subdirectories - needs special handling)
-            if (sourceType.Name == "Tekken8ReplayFileSource")
+            // Skip Tekken8 (uses wildcard pattern "*.*" with subdirectories - needs special handling)
+            if (sourceType == typeof(Tekken8ReplayFileSource))
                 continue;
 
             var patterns = FileWatcherSourceDiscovery.GetExpectedPatterns(sourceType);
 
-            // Skip sources without valid patterns
+            // Validate that patterns were successfully retrieved
             if (patterns.Length == 0)
-                continue;
+            {
+                throw new InvalidOperationException(
+                    $"Source type {sourceType.Name} has no file patterns defined. " +
+                    $"This likely indicates a problem with the ApplyDefaults method or pattern discovery.");
+            }
 
             yield return new object[]
             {
@@ -50,8 +56,8 @@ public class FileWatcherTestData
 
         foreach (var sourceType in sources)
         {
-            // Skip Tekken8 for now (uses wildcard pattern "*.*" with subdirectories - needs special handling)
-            if (sourceType.Name == "Tekken8ReplayFileSource")
+            // Skip Tekken8 (uses wildcard pattern "*.*" with subdirectories - needs special handling)
+            if (sourceType == typeof(Tekken8ReplayFileSource))
                 continue;
 
             var includeSubdirs = FileWatcherSourceDiscovery.GetIncludeSubdirectories(sourceType);
@@ -62,9 +68,13 @@ public class FileWatcherTestData
 
             var patterns = FileWatcherSourceDiscovery.GetExpectedPatterns(sourceType);
 
-            // Skip sources without valid patterns
+            // Validate that patterns were successfully retrieved
             if (patterns.Length == 0)
-                continue;
+            {
+                throw new InvalidOperationException(
+                    $"Source type {sourceType.Name} has no file patterns defined. " +
+                    $"This likely indicates a problem with the ApplyDefaults method or pattern discovery.");
+            }
 
             yield return new object[]
             {
@@ -94,9 +104,13 @@ public class FileWatcherTestData
 
             var patterns = FileWatcherSourceDiscovery.GetExpectedPatterns(sourceType);
 
-            // Skip sources without valid patterns
+            // Validate that patterns were successfully retrieved
             if (patterns.Length == 0)
-                continue;
+            {
+                throw new InvalidOperationException(
+                    $"Source type {sourceType.Name} has no file patterns defined. " +
+                    $"This likely indicates a problem with the ApplyDefaults method or pattern discovery.");
+            }
 
             yield return new object[]
             {

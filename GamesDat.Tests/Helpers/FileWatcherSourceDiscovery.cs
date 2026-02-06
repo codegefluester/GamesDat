@@ -52,19 +52,19 @@ public static class FileWatcherSourceDiscovery
     /// </summary>
     /// <param name="sourceType">The file watcher source type.</param>
     /// <returns>Array of file patterns (e.g., ["*.replay", "*.dem"]).</returns>
+    /// <exception cref="InvalidOperationException">Thrown when unable to retrieve patterns for the source type.</exception>
     public static string[] GetExpectedPatterns(Type sourceType)
     {
-        try
+        var options = GetDefaultOptions(sourceType);
+
+        if (options == null)
         {
-            // Get options using ApplyDefaults static method
-            var options = GetDefaultOptions(sourceType);
-            return options?.Patterns ?? Array.Empty<string>();
+            throw new InvalidOperationException(
+                $"Unable to retrieve default options for {sourceType.Name}. " +
+                $"Ensure the type has a compatible ApplyDefaults method.");
         }
-        catch
-        {
-            // If retrieval fails, return empty array
-            return Array.Empty<string>();
-        }
+
+        return options.Patterns ?? Array.Empty<string>();
     }
 
     /// <summary>
@@ -72,49 +72,61 @@ public static class FileWatcherSourceDiscovery
     /// </summary>
     /// <param name="sourceType">The file watcher source type.</param>
     /// <returns>True if subdirectories are monitored, false otherwise.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when unable to retrieve options for the source type.</exception>
     public static bool GetIncludeSubdirectories(Type sourceType)
     {
-        try
+        var options = GetDefaultOptions(sourceType);
+
+        if (options == null)
         {
-            var options = GetDefaultOptions(sourceType);
-            return options?.IncludeSubdirectories ?? false;
+            throw new InvalidOperationException(
+                $"Unable to retrieve default options for {sourceType.Name}. " +
+                $"Ensure the type has a compatible ApplyDefaults method.");
         }
-        catch
-        {
-            return false;
-        }
+
+        return options.IncludeSubdirectories;
     }
 
     /// <summary>
     /// Gets the default FileWatcherOptions for a source type by calling its ApplyDefaults method.
+    /// Supports both ApplyDefaults(FileWatcherOptions) and ApplyDefaults(string?) patterns.
     /// </summary>
     /// <param name="sourceType">The file watcher source type.</param>
     /// <returns>The default FileWatcherOptions, or null if unable to retrieve.</returns>
     private static FileWatcherOptions? GetDefaultOptions(Type sourceType)
     {
-        try
-        {
-            // Look for private static ApplyDefaults(string? customPath) method
-            var applyDefaultsMethod = sourceType.GetMethod(
-                "ApplyDefaults",
-                BindingFlags.NonPublic | BindingFlags.Static,
-                null,
-                new[] { typeof(string) },
-                null);
+        // Try ApplyDefaults(FileWatcherOptions) pattern first (used by most sources)
+        var optionsMethod = sourceType.GetMethod(
+            "ApplyDefaults",
+            BindingFlags.NonPublic | BindingFlags.Static,
+            null,
+            new[] { typeof(FileWatcherOptions) },
+            null);
 
-            if (applyDefaultsMethod != null)
-            {
-                // Call ApplyDefaults with a test path
-                var options = applyDefaultsMethod.Invoke(null, new object?[] { Path.GetTempPath() });
-                return options as FileWatcherOptions;
-            }
-
-            return null;
-        }
-        catch
+        if (optionsMethod != null)
         {
-            return null;
+            // Call ApplyDefaults with a test options object
+            var testOptions = new FileWatcherOptions { Path = Path.GetTempPath() };
+            var result = optionsMethod.Invoke(null, new object[] { testOptions });
+            return result as FileWatcherOptions;
         }
+
+        // Fall back to ApplyDefaults(string?) pattern
+        var stringMethod = sourceType.GetMethod(
+            "ApplyDefaults",
+            BindingFlags.NonPublic | BindingFlags.Static,
+            null,
+            new[] { typeof(string) },
+            null);
+
+        if (stringMethod != null)
+        {
+            // Call ApplyDefaults with a test path
+            var result = stringMethod.Invoke(null, new object?[] { Path.GetTempPath() });
+            return result as FileWatcherOptions;
+        }
+
+        return null;
     }
 
     /// <summary>

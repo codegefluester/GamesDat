@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GamesDat.Core.Telemetry.Sources;
+using GamesDat.Core.Telemetry.Sources.Tekken8;
 using GamesDat.Tests.Helpers;
 using Xunit;
 
@@ -56,7 +57,7 @@ public class FileWatcherSourceTests : IDisposable
     {
         // Arrange
         var testDir = CreateTestDirectory(sourceType.Name);
-        var source = InstantiateSource(sourceType, testDir);
+        using var source = InstantiateSource(sourceType, testDir);
         Assert.NotNull(source);
 
         var detectedFiles = new List<string>();
@@ -82,22 +83,42 @@ public class FileWatcherSourceTests : IDisposable
             }
         }, cts.Token);
 
-        // Allow FileSystemWatcher to initialize
-        await Task.Delay(500);
+        // Declare variables outside try block for assert access
+        string testFilePath = string.Empty;
 
-        // Create a file matching the first pattern
-        var testFileName = $"test_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
-        var testFilePath = Path.Combine(testDir, testFileName);
-        await File.WriteAllTextAsync(testFilePath, "test content");
-
-        // Wait for detection with timeout
         try
         {
+            // Allow FileSystemWatcher to initialize
+            await Task.Delay(500);
+
+            // Create a file matching the first pattern
+            var testFileName = $"test_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
+            testFilePath = Path.Combine(testDir, testFileName);
+            await File.WriteAllTextAsync(testFilePath, "test content");
+
+            // Wait for detection with timeout
             await watchTask;
         }
         catch (OperationCanceledException)
         {
             // Expected
+        }
+        finally
+        {
+            // Ensure cleanup even if test fails
+            if (!cts.IsCancellationRequested)
+            {
+                cts.Cancel();
+            }
+
+            try
+            {
+                await watchTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
         }
 
         // Assert
@@ -121,7 +142,7 @@ public class FileWatcherSourceTests : IDisposable
 
         // Arrange
         var testDir = CreateTestDirectory(sourceType.Name);
-        var source = InstantiateSource(sourceType, testDir);
+        using var source = InstantiateSource(sourceType, testDir);
         Assert.NotNull(source);
 
         var detectedFiles = new List<string>();
@@ -143,28 +164,45 @@ public class FileWatcherSourceTests : IDisposable
             }
         }, cts.Token);
 
-        // Allow FileSystemWatcher to initialize
-        await Task.Delay(500);
-
-        // Create files with non-matching extensions
-        var nonMatchingFiles = new[] { ".txt", ".log", ".tmp" };
-        foreach (var extension in nonMatchingFiles)
-        {
-            var testFilePath = Path.Combine(testDir, $"test_{Guid.NewGuid():N}{extension}");
-            await File.WriteAllTextAsync(testFilePath, "test content");
-        }
-
-        // Wait for potential detection (should timeout without detecting)
-        await Task.Delay(2000);
-        cts.Cancel();
-
         try
         {
+            // Allow FileSystemWatcher to initialize
+            await Task.Delay(500);
+
+            // Create files with non-matching extensions
+            var nonMatchingFiles = new[] { ".txt", ".log", ".tmp" };
+            foreach (var extension in nonMatchingFiles)
+            {
+                var testFilePath = Path.Combine(testDir, $"test_{Guid.NewGuid():N}{extension}");
+                await File.WriteAllTextAsync(testFilePath, "test content");
+            }
+
+            // Wait for potential detection (should timeout without detecting)
+            await Task.Delay(2000);
+            cts.Cancel();
+
             await watchTask;
         }
         catch (OperationCanceledException)
         {
             // Expected
+        }
+        finally
+        {
+            // Ensure cleanup even if test fails
+            if (!cts.IsCancellationRequested)
+            {
+                cts.Cancel();
+            }
+
+            try
+            {
+                await watchTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
         }
 
         // Assert - No files should be detected
@@ -189,7 +227,7 @@ public class FileWatcherSourceTests : IDisposable
         // Wait briefly to ensure file is written
         await Task.Delay(100);
 
-        var source = InstantiateSource(sourceType, testDir);
+        using var source = InstantiateSource(sourceType, testDir);
         Assert.NotNull(source);
 
         var detectedFiles = new List<string>();
@@ -224,6 +262,23 @@ public class FileWatcherSourceTests : IDisposable
         {
             // Expected
         }
+        finally
+        {
+            // Ensure cleanup even if test fails
+            if (!cts.IsCancellationRequested)
+            {
+                cts.Cancel();
+            }
+
+            try
+            {
+                await watchTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
+        }
 
         // Assert
         Assert.NotEmpty(detectedFiles);
@@ -242,7 +297,7 @@ public class FileWatcherSourceTests : IDisposable
         var subDir = Path.Combine(testDir, "SubFolder");
         Directory.CreateDirectory(subDir);
 
-        var source = InstantiateSource(sourceType, testDir);
+        using var source = InstantiateSource(sourceType, testDir);
         Assert.NotNull(source);
 
         // Verify subdirectory support is enabled
@@ -271,22 +326,42 @@ public class FileWatcherSourceTests : IDisposable
             }
         }, cts.Token);
 
-        // Allow FileSystemWatcher to initialize
-        await Task.Delay(500);
+        // Declare variables outside try block for assert access
+        string testFilePath = string.Empty;
 
-        // Create file in subdirectory
-        var testFileName = $"subdir_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
-        var testFilePath = Path.Combine(subDir, testFileName);
-        await File.WriteAllTextAsync(testFilePath, "subdirectory file content");
-
-        // Wait for detection
         try
         {
+            // Allow FileSystemWatcher to initialize
+            await Task.Delay(500);
+
+            // Create file in subdirectory
+            var testFileName = $"subdir_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
+            testFilePath = Path.Combine(subDir, testFileName);
+            await File.WriteAllTextAsync(testFilePath, "subdirectory file content");
+
+            // Wait for detection
             await watchTask;
         }
         catch (OperationCanceledException)
         {
             // Expected
+        }
+        finally
+        {
+            // Ensure cleanup even if test fails
+            if (!cts.IsCancellationRequested)
+            {
+                cts.Cancel();
+            }
+
+            try
+            {
+                await watchTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
         }
 
         // Assert - File in subdirectory should be detected
@@ -303,7 +378,7 @@ public class FileWatcherSourceTests : IDisposable
     {
         // Arrange
         var testDir = CreateTestDirectory(sourceType.Name);
-        var source = InstantiateSource(sourceType, testDir);
+        using var source = InstantiateSource(sourceType, testDir);
         Assert.NotNull(source);
 
         var detectedFiles = new List<string>();
@@ -325,35 +400,55 @@ public class FileWatcherSourceTests : IDisposable
             }
         }, cts.Token);
 
-        // Allow FileSystemWatcher to initialize
-        await Task.Delay(500);
-
-        // Create file
-        var testFileName = $"once_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
-        var testFilePath = Path.Combine(testDir, testFileName);
-        await File.WriteAllTextAsync(testFilePath, "initial content");
-
-        // Wait for initial detection
-        await Task.Delay(2000);
-
-        // Modify file multiple times (should not trigger additional emissions)
-        for (int i = 0; i < 3; i++)
-        {
-            await File.AppendAllTextAsync(testFilePath, $"\nmodification {i}");
-            await Task.Delay(100);
-        }
-
-        // Wait to ensure no additional detections
-        await Task.Delay(3000);
-        cts.Cancel();
+        // Declare variables outside try block for assert access
+        string testFilePath = string.Empty;
 
         try
         {
+            // Allow FileSystemWatcher to initialize
+            await Task.Delay(500);
+
+            // Create file
+            var testFileName = $"once_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
+            testFilePath = Path.Combine(testDir, testFileName);
+            await File.WriteAllTextAsync(testFilePath, "initial content");
+
+            // Wait for initial detection
+            await Task.Delay(2000);
+
+            // Modify file multiple times (should not trigger additional emissions)
+            for (int i = 0; i < 3; i++)
+            {
+                await File.AppendAllTextAsync(testFilePath, $"\nmodification {i}");
+                await Task.Delay(100);
+            }
+
+            // Wait to ensure no additional detections
+            await Task.Delay(3000);
+            cts.Cancel();
+
             await watchTask;
         }
         catch (OperationCanceledException)
         {
             // Expected
+        }
+        finally
+        {
+            // Ensure cleanup even if test fails
+            if (!cts.IsCancellationRequested)
+            {
+                cts.Cancel();
+            }
+
+            try
+            {
+                await watchTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
         }
 
         // Assert - File should appear exactly once
@@ -370,7 +465,7 @@ public class FileWatcherSourceTests : IDisposable
     {
         // Arrange
         var testDir = CreateTestDirectory(sourceType.Name);
-        var source = InstantiateSource(sourceType, testDir);
+        using var source = InstantiateSource(sourceType, testDir);
         Assert.NotNull(source);
 
         var detectedFiles = new List<string>();
@@ -398,28 +493,48 @@ public class FileWatcherSourceTests : IDisposable
             }
         }, cts.Token);
 
-        // Allow FileSystemWatcher to initialize
-        await Task.Delay(500);
+        // Declare variables outside try block for assert access
+        string testFilePath = string.Empty;
 
-        // Create file with rapid modifications
-        var testFileName = $"debounce_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
-        var testFilePath = Path.Combine(testDir, testFileName);
-
-        // Rapid writes (within debounce window)
-        await File.WriteAllTextAsync(testFilePath, "initial");
-        await Task.Delay(50);
-        await File.AppendAllTextAsync(testFilePath, " - rapid 1");
-        await Task.Delay(50);
-        await File.AppendAllTextAsync(testFilePath, " - rapid 2");
-
-        // Wait for detection
         try
         {
+            // Allow FileSystemWatcher to initialize
+            await Task.Delay(500);
+
+            // Create file with rapid modifications
+            var testFileName = $"debounce_{Guid.NewGuid():N}{patterns[0].Replace("*", "")}";
+            testFilePath = Path.Combine(testDir, testFileName);
+
+            // Rapid writes (within debounce window)
+            await File.WriteAllTextAsync(testFilePath, "initial");
+            await Task.Delay(50);
+            await File.AppendAllTextAsync(testFilePath, " - rapid 1");
+            await Task.Delay(50);
+            await File.AppendAllTextAsync(testFilePath, " - rapid 2");
+
+            // Wait for detection
             await watchTask;
         }
         catch (OperationCanceledException)
         {
             // Expected
+        }
+        finally
+        {
+            // Ensure cleanup even if test fails
+            if (!cts.IsCancellationRequested)
+            {
+                cts.Cancel();
+            }
+
+            try
+            {
+                await watchTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
         }
 
         // Assert - Should be debounced to single emission
@@ -428,28 +543,35 @@ public class FileWatcherSourceTests : IDisposable
     }
 
     /// <summary>
-    /// Validates that all discovered file watcher sources can be instantiated.
+    /// Validates that all discovered file watcher sources can be instantiated and have valid patterns.
+    /// Tests discovery directly to ensure no sources are silently excluded.
     /// </summary>
     [Fact]
     public void AllDiscoveredSources_AreInstantiable()
     {
-        // Arrange - Use AllSources() which includes pattern filtering
-        var testData = FileWatcherTestData.AllSources().ToList();
+        // Arrange - Use DiscoverAllSources() directly to test all discovered sources
+        var sources = FileWatcherSourceDiscovery.DiscoverAllSources();
         var testDir = CreateTestDirectory("InstantiationTest");
 
         // Act & Assert
-        Assert.NotEmpty(testData); // Should discover file watcher source types with patterns
+        Assert.NotEmpty(sources); // Should discover file watcher source types
 
-        foreach (var data in testData)
+        foreach (var sourceType in sources)
         {
-            var sourceType = (Type)data[0];
-            var patterns = (string[])data[1];
+            // Try to get patterns for the source
+            var patterns = FileWatcherSourceDiscovery.GetExpectedPatterns(sourceType);
 
-            var instance = FileWatcherSourceDiscovery.InstantiateSource(sourceType, testDir);
+            // Patterns should be populated for all sources (except explicit exclusions like Tekken8)
+            if (sourceType != typeof(Tekken8ReplayFileSource))
+            {
+                Assert.NotEmpty(patterns);
+            }
+
+            // Try to instantiate the source
+            using var instance = FileWatcherSourceDiscovery.InstantiateSource(sourceType, testDir);
 
             Assert.NotNull(instance);
             Assert.IsAssignableFrom<FileWatcherSourceBase>(instance);
-            Assert.NotEmpty(patterns);
         }
     }
 
