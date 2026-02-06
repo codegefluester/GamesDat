@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using GamesDat.Core.Telemetry.Sources;
@@ -212,7 +213,7 @@ public static class FileWatcherSourceDiscovery
             var parameterlessConstructor = sourceType.GetConstructor(Type.EmptyTypes);
             if (parameterlessConstructor != null)
             {
-                return (FileWatcherSourceBase)parameterlessConstructor.Invoke(null);
+                return (FileWatcherSourceBase)parameterlessConstructor.Invoke(Array.Empty<object>());
             }
 
             return null;
