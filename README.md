@@ -34,21 +34,22 @@ await session.StartAsync();
 
 Out of the box:
 
-| Game                       | Replay/Demo files | Realtime data                   | Tested |
-| -------------------------- | ----------------- | ------------------------------- | ------ |
-| Assetto Corsa Competizione | ❌                | ✅ Physics, Graphics, Telemetry | ⏳     |
-| Brawlhalla                 | ✅                | ❌                              | ✅     |
-| Rocket League              | ✅                | ❌                              | ✅     |
-| Rainbow Six Siege          | ✅                | ❌                              | ✅     |
-| Counter-Strike 2           | ✅                | ❌                              | ✅     |
-| DOTA 2                     | ✅                | ❌                              | ⏳     |
-| Fortnite                   | ✅                | ❌                              | ⏳     |
-| League of Legends          | ✅                | ❌                              | ⏳     |
-| Overwatch 2                | ✅                | ❌                              | ⏳     |
-| PUBG                       | ✅                | ❌                              | ⏳     |
-| Starcraft 2                | ✅                | ❌                              | ⏳     |
-| Tekken 8                   | ✅                | ❌                              | ⏳     |
-| Trackmania                 | ✅                | ✅                              | ✅     |
+| Game                       | Replay/Demo files         | Realtime data                   | Tested |
+| -------------------------- | ------------------------- | ------------------------------- | ------ |
+| Assetto Corsa Competizione | ❌                        | ✅ Physics, Graphics, Telemetry | ⏳     |
+| Brawlhalla                 | ✅                        | ❌                              | ✅     |
+| Rocket League              | ✅                        | ❌                              | ✅     |
+| Rainbow Six Siege          | ✅                        | ❌                              | ✅     |
+| Counter-Strike 2           | ✅                        | ❌                              | ✅     |
+| DOTA 2                     | ✅                        | ❌                              | ⏳     |
+| Fortnite                   | ✅                        | ❌                              | ⏳     |
+| League of Legends          | ✅                        | ❌                              | ⏳     |
+| Overwatch 2                | ✅                        | ❌                              | ⏳     |
+| PUBG                       | ✅                        | ❌                              | ⏳     |
+| Starcraft 2                | ✅                        | ❌                              | ⏳     |
+| Tekken 8                   | ✅                        | ❌                              | ⏳     |
+| Trackmania                 | ✅                        | ✅                              | ✅     |
+| iRacing                    | ✅ IBT, Replay, OLAP/BLAP | ⏳ Telemetry and Session info   | ⏳     |
 
 [Adding your own game →](docs/CREATING_SOURCES.md)
 
