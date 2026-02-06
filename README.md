@@ -34,9 +34,20 @@ await session.StartAsync();
 
 Out of the box:
 
-- **Assetto Corsa Competizione** - Physics, Graphics, Static telemetry
-- **Rocket League** - Replay file monitoring
-- **Rainbow Six Siege** - Replay file monitoring
+| Game                       | Replay/Demo files | Realtime data                   | Tested |
+| -------------------------- | ----------------- | ------------------------------- | ------ |
+| Assetto Corsa Competizione | ❌                | ✅ Physics, Graphics, Telemetry | ⏳     |
+| Rocket League              | ✅                | ❌                              | ✅     |
+| Rainbow Six Siege          | ✅                | ❌                              | ✅     |
+| Counter-Strike 2           | ✅                | ❌                              | ✅     |
+| DOTA 2                     | ✅                | ❌                              | ⏳     |
+| Fortnite                   | ✅                | ❌                              | ⏳     |
+| League of Legends          | ✅                | ❌                              | ⏳     |
+| Overwatch 2                | ✅                | ❌                              | ⏳     |
+| PUBG                       | ✅                | ❌                              | ⏳     |
+| Starcraft 2                | ✅                | ❌                              | ⏳     |
+| Tekken 8                   | ✅                | ❌                              | ⏳     |
+| Trackmania                 | ✅                | ✅                              | ✅     |
 
 [Adding your own game →](docs/CREATING_SOURCES.md)
 
@@ -46,12 +57,8 @@ Out of the box:
 # Clone repository
 git clone https://github.com/yourusername/GameTelemetry.git
 
-# Build
-cd GameTelemetry
-dotnet build
+# Add project as a reference to your existing solution
 
-# Run demo
-dotnet run --project GameTelemetry.TestApp
 ```
 
 NuGet packages coming soon.
@@ -83,13 +90,12 @@ NuGet packages coming soon.
 - Real-time callbacks for live processing
 - Zero-reflection hot path (generics only)
 
-[Detailed architecture →](docs/ARCHITECTURE.md)
-
 ## Usage Examples
 
 ### Capture with auto-generated filename
 
 ```csharp
+// Reads realtime physics from Assetto Corsa Competizione
 await using var session = new GameSession()
     .AddSource(ACCSources.CreatePhysicsSource());
 
@@ -113,10 +119,11 @@ await session.StartAsync();
 
 ```csharp
 await using var session = new GameSession()
-    .AddSource(RocketLeagueSources.CreateReplaySource(), opt => opt
+    .AddSource(new TrackmaniaMemoryMappedSource(), opt => opt
         .RealtimeOnly())
-    .OnData<string>(replayPath =>
-        Console.WriteLine($"New replay: {replayPath}"));
+    .OnData<TrackmaniaDataV3>(frame => {
+        Console.WriteLine($"Speed: {frame.Speed} km/h");
+    });
 
 await session.StartAsync();
 ```
@@ -129,23 +136,6 @@ await foreach (var (timestamp, data) in SessionReader.ReadAsync<ACCPhysics>("ses
     Console.WriteLine($"{timestamp}: {data.SpeedKmh} km/h");
 }
 ```
-
-[More examples →](docs/EXAMPLES.md)
-
-## Reading Session Data
-
-```bash
-# Read most recent session
-dotnet run --project GameTelemetry.TestApp read
-
-# Read specific session
-dotnet run --project GameTelemetry.TestApp read ./sessions/acc_20260125_120000.dat
-```
-
-Automatically exports:
-
-- **CSV** - For analysis in Excel/Python
-- **HTML** - Interactive Chart.js visualization
 
 ## Performance
 
@@ -182,11 +172,11 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+MIT License - see [LICENSE](LICENSE.md)
 
 ## Roadmap
 
-- [ ] Network source (UDP/TCP)
+- [ ] Network source (UDP/TCP) for F1 games, Counter-Strike game state etc.
 - [ ] NuGet packages
 - [ ] More game integrations (iRacing, F1, BeamNG)
 - [ ] Session merging/splitting
