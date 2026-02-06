@@ -37,6 +37,7 @@ Out of the box:
 | Game                       | Replay/Demo files | Realtime data                   | Tested |
 | -------------------------- | ----------------- | ------------------------------- | ------ |
 | Assetto Corsa Competizione | ❌                | ✅ Physics, Graphics, Telemetry | ⏳     |
+| Brawlhalla                 | ✅                | ❌                              | ✅     |
 | Rocket League              | ✅                | ❌                              | ✅     |
 | Rainbow Six Siege          | ✅                | ❌                              | ✅     |
 | Counter-Strike 2           | ✅                | ❌                              | ✅     |
