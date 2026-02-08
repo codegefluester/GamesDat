@@ -50,6 +50,7 @@ Out of the box:
 | Tekken 8                   | ✅                        | ❌                              | ⏳     |
 | Trackmania                 | ✅                        | ✅                              | ✅     |
 | iRacing                    | ✅ IBT, Replay, OLAP/BLAP | ⏳ Telemetry and Session info   | ⏳     |
+| Valorant                   | ✅                        | ❌                              | ✅     |
 
 [Adding your own game →](docs/CREATING_SOURCES.md)
 
