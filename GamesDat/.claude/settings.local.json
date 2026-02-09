@@ -11,7 +11,8 @@
       "Bash(dir /s /b \"..\\\\GamesDate.Demo.Wpf\\\\Views\\\\*.xaml\")",
       "WebFetch(domain:wiki.trackmania.io)",
       "Bash(xargs:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(dir:*)"
     ]
   }
 }
