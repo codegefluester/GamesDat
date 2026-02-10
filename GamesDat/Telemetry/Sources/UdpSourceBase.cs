@@ -45,8 +45,13 @@ namespace GamesDat.Core.Telemetry.Sources
             finally
             {
                 _isListening = false;
-                _listener.Dispose();
             }
+        }
+
+        public override void Dispose()
+        {
+            _listener?.Dispose();
+            base.Dispose();
         }
 
         abstract protected IEnumerable<T> ProcessData(byte[] data);
