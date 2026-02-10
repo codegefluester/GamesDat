@@ -36,6 +36,7 @@ Out of the box:
 
 | Game                       | Replay/Demo files         | Realtime data                   | Tested |
 | -------------------------- | ------------------------- | ------------------------------- | ------ |
+| Age of Empires IV          | ✅                        | ❌                              | ⏳     |
 | Assetto Corsa Competizione | ❌                        | ✅ Physics, Graphics, Telemetry | ⏳     |
 | Brawlhalla                 | ✅                        | ❌                              | ✅     |
 | Rocket League              | ✅                        | ❌                              | ✅     |

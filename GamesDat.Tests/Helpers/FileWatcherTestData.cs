@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GamesDat.Core.Telemetry.Sources;
+using GamesDat.Core.Telemetry.Sources.AgeOfEmpires4;
 using GamesDat.Core.Telemetry.Sources.Tekken8;
 
 namespace GamesDat.Tests.Helpers;
@@ -12,6 +13,16 @@ namespace GamesDat.Tests.Helpers;
 /// </summary>
 public class FileWatcherTestData
 {
+
+    /// <summary>
+    /// Sources we currently explicitly ignore during testing ebcause they use an
+    /// overly broad pattern ("*.*") and require special handling to avoid test pollution.
+    /// </summary>
+    public static Type[] IgnoredSources = [
+        typeof(Tekken8ReplayFileSource), 
+        typeof(AgeOfEmpires4ReplayFileSource)
+    ];
+
     /// <summary>
     /// Returns all discovered file watcher sources as test case data.
     /// Each test case includes: Type sourceType, string[] patterns
@@ -23,9 +34,11 @@ public class FileWatcherTestData
 
         foreach (var sourceType in sources)
         {
-            // Skip Tekken8 (uses wildcard pattern "*.*" with subdirectories - needs special handling)
-            if (sourceType == typeof(Tekken8ReplayFileSource))
+            if (IgnoredSources.Contains(sourceType))
+            {
+                Console.WriteLine($"Skipping source {sourceType.Name} in AllSources test data due to broad pattern and special handling requirements.");
                 continue;
+            }
 
             var patterns = FileWatcherSourceDiscovery.GetExpectedPatterns(sourceType);
 

@@ -15,6 +15,7 @@ using GamesDat.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
+using GamesDat.Core.Telemetry.Sources.AgeOfEmpires4;
 
 namespace GamesDat.Demo.Wpf.ViewModels;
 
@@ -322,6 +323,33 @@ public partial class FileWatcherTabViewModel : ViewModelBase, IDisposable
                 "*.replay",
                 null);
             Sources.Add(brawlhallaSource);
+        }
+
+        // Add AoE IV source
+        try
+        {
+            var aoe4Path = AgeOfEmpires4ReplayFileSource.GetDefaultReplayPath();
+            System.Diagnostics.Debug.WriteLine($"AoE IV replay path: {aoe4Path}");
+            var aoe4Source = new FileWatcherSourceViewModel(
+                "Age of Empires IV",
+                aoe4Path,
+                "*.*",
+                () => new AgeOfEmpires4ReplayFileSource());
+            aoe4Source.DetectedFiles.CollectionChanged += OnSourceFilesChanged;
+            Sources.Add(aoe4Source);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Game not installed - add disabled source
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "Age of Empires IV", "playback");
+            var aoe4Source = new FileWatcherSourceViewModel(
+                "Age of Empires IV (Not Installed)",
+                defaultPath,
+                "*.*",
+                null);
+            Sources.Add(aoe4Source);
         }
     }
 
