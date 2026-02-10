@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace GamesDat.Core.Telemetry.Sources.Formula1
@@ -31,7 +32,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                     $"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}");
             }
 
-            return Marshal.PtrToStructure<T>((IntPtr)frame.RawData);
+            return Unsafe.Read<T>(frame.RawData);
         }
 
         /// <summary>
@@ -49,7 +50,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                 throw new InvalidOperationException($"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}");
             }
 
-            var result = Marshal.PtrToStructure((IntPtr)frame.RawData, packetType);
+            byte* ptr = frame.RawData;
+            var result = Marshal.PtrToStructure((IntPtr)ptr, packetType);
             return result;
         }
 
@@ -59,7 +61,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         public static unsafe byte[] GetRawData(this F1TelemetryFrame frame)
         {
             var data = new byte[frame.DataLength];
-            Marshal.Copy((IntPtr)frame.RawData, data, 0, frame.DataLength);
+            byte* ptr = frame.RawData;
+            Marshal.Copy((IntPtr)ptr, data, 0, frame.DataLength);
             return data;
         }
     }

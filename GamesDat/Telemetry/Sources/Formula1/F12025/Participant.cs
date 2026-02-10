@@ -14,8 +14,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         public byte m_raceNumber;                       // Race number of the car
         public byte m_nationality;                      // Nationality of the driver
         
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string m_name;                           // Name of participant in UTF-8 format – null terminated
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+        public byte[] m_name;                           // Name of participant in UTF-8 format – null terminated
                                                         // Will be truncated with ... (U+2026) if too long
         public byte m_yourTelemetry;                    // The player's UDP setting, 0 = restricted, 1 = public
         public byte m_showOnlineNames;                  // The player's show online names setting, 0 = off, 1 = on
