@@ -9,7 +9,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
 
         // Packet specific data
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 22)]
-        public CarTelemetryData[] m_carTelemetryData;
+        public CarTelemetry[] m_carTelemetryData;
 
         public byte m_mfdPanelIndex;                // Index of MFD panel open - 255 = MFD closed
                                               // Single player, race – 0 = Car setup, 1 = Pits

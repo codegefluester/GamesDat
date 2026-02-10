@@ -10,6 +10,6 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         public byte m_numActiveCars;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 22)]
-        public ParticipantData[] m_participants;
+        public Participant[] m_participants;
     }
 }

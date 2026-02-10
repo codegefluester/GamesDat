@@ -1,3 +1,4 @@
+using GamesDat.Core.Telemetry.Sources.Formula1.F12022;
 using GamesDat.Core.Telemetry.Sources.Formula1.F12023;
 using GamesDat.Core.Telemetry.Sources.Formula1.F12024;
 using GamesDat.Core.Telemetry.Sources.Formula1.F12025;
@@ -8,6 +9,20 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
     {
         private static readonly Dictionary<(ushort format, byte id), Type> _packetTypeMap = new()
         {
+            // F1 2022
+            [(2022, (byte)PacketId.Motion)] = typeof(F12022.PacketMotionData),
+            [(2022, (byte)PacketId.Session)] = typeof(F12022.PacketSessionData),
+            [(2022, (byte)PacketId.LapData)] = typeof(F12022.PacketLapData),
+            [(2022, (byte)PacketId.Event)] = typeof(F12022.PacketEventData),
+            [(2022, (byte)PacketId.Participants)] = typeof(F12022.PacketParticipantsData),
+            [(2022, (byte)PacketId.CarSetups)] = typeof(F12022.PacketCarSetupData),
+            [(2022, (byte)PacketId.CarTelemetry)] = typeof(F12022.PacketCarTelemetryData),
+            [(2022, (byte)PacketId.CarStatus)] = typeof(F12022.PacketCarStatusData),
+            [(2022, (byte)PacketId.FinalClassification)] = typeof(F12022.PacketFinalClassificationData),
+            [(2022, (byte)PacketId.LobbyInfo)] = typeof(F12022.PacketLobbyInfoData),
+            [(2022, (byte)PacketId.CarDamage)] = typeof(F12022.PacketCarDamageData),
+            [(2022, (byte)PacketId.SessionHistory)] = typeof(F12022.PacketSessionHistoryData),
+
             // F1 2023
             [(2023, (byte)PacketId.Motion)] = typeof(F12023.PacketMotionData),
             [(2023, (byte)PacketId.Session)] = typeof(F12023.PacketSessionData),

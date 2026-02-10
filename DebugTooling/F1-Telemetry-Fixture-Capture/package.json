@@ -1,0 +1,14 @@
+{
+  "name": "F1-Telemetry-Fixture-Capture",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "capture": "node capture.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "type": "module"
+}

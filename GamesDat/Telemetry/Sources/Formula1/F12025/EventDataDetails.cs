@@ -45,7 +45,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct DRSDisabledData
     {
-        public byte VehicleIdx;
+        public byte Reason; // 0 = Wet track, 1 = Safety car, 2 = Red flag, 3 = Min lap not reached
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -93,12 +93,13 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
     public struct StopGoPenaltyServedData
     {
         public byte VehicleIdx;
+        public float StopTime; // Time spent serving stop-go in seconds
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FlashbackData
     {
-        public byte FlashbackFrameIdentifier;
+        public uint FlashbackFrameIdentifier; // Changed from byte to uint
         public float FlashbackSessionTime;
     }
 
@@ -125,7 +126,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct CollisionData
     {
-        public byte VehicleIdx;
-        public byte CollidingVehicleIdx;
+        public byte Vehicle1Idx; // Changed from VehicleIdx
+        public byte Vehicle2Idx; // Changed from CollidingVehicleIdx
     }
 }

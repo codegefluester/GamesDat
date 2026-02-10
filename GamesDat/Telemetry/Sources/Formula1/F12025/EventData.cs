@@ -14,7 +14,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         public EventDataDetails m_eventDetails;
 
         // Helper property to get event code as string
-        public string EventCode => Encoding.ASCII.GetString(EventStringCode);
+        public readonly string EventCode => EventStringCode != null ? Encoding.ASCII.GetString(EventStringCode) : string.Empty;
 
         public T GetEventDetails<T>() where T : struct
         {
