@@ -16,7 +16,6 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         {
             if (data.Length < MinRoutingHeaderSize)
             {
-                System.Diagnostics.Debug.WriteLine($"[F1] Packet too small: {data.Length} bytes (min {MinRoutingHeaderSize})");
                 yield break;
             }
 
@@ -26,18 +25,14 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
             var packetType = F1PacketTypeMapper.GetPacketType(packetFormat, packetId);
             if (packetType == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[F1] Unknown packet: Format={packetFormat}, PacketId={packetId}");
                 yield break;
             }
 
             var expectedSize = Marshal.SizeOf(packetType);
             if (data.Length < expectedSize)
             {
-                System.Diagnostics.Debug.WriteLine($"[F1] Packet size mismatch: PacketId={packetId}, Expected={expectedSize}, Actual={data.Length}");
                 yield break;
             }
-
-            System.Diagnostics.Debug.WriteLine($"[F1] Packet received: Format={packetFormat}, PacketId={packetId}, Size={data.Length}");
 
             yield return new F1TelemetryFrame(packetFormat, packetId, data);
         }

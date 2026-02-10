@@ -44,31 +44,13 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                 return null;
 
             var expectedSize = Marshal.SizeOf(packetType);
-
-            var msg = $"[F1 Deserialize] Type={packetType.Name}, Expected={expectedSize}, Actual={frame.DataLength}, PacketId={frame.PacketId}";
-            System.Diagnostics.Debug.WriteLine(msg);
-            Console.WriteLine(msg);
-
             if (frame.DataLength < expectedSize)
             {
-                var errorMsg = $"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}";
-                Console.WriteLine($"[F1 ERROR] {errorMsg}");
-                throw new InvalidOperationException(errorMsg);
+                throw new InvalidOperationException($"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}");
             }
 
-            try
-            {
-                var result = Marshal.PtrToStructure((IntPtr)frame.RawData, packetType);
-                Console.WriteLine($"[F1 Deserialize] SUCCESS for PacketId={frame.PacketId}");
-                return result;
-            }
-            catch (Exception ex)
-            {
-                var errorMsg = $"Marshal.PtrToStructure failed: {ex.GetType().Name} - {ex.Message}";
-                Console.WriteLine($"[F1 ERROR] {errorMsg}");
-                System.Diagnostics.Debug.WriteLine($"[F1 ERROR] {errorMsg}");
-                throw;
-            }
+            var result = Marshal.PtrToStructure((IntPtr)frame.RawData, packetType);
+            return result;
         }
 
         /// <summary>
