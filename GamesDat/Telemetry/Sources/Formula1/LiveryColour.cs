@@ -5,8 +5,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct LiveryColour
     {
-        byte red;
-        byte green;
-        byte blue;
+        public byte red;
+        public byte green;
+        public byte blue;
     }
 }
