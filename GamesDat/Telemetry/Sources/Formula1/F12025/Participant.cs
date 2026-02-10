@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
 {
@@ -26,5 +27,18 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
         public LiveryColour[] m_liveryColours;          // Colours for the car
 
+        /// <summary>
+        /// Gets the participant name as a decoded UTF-8 string
+        /// </summary>
+        public readonly string Name
+        {
+            get
+            {
+                if (m_name == null) return string.Empty;
+                int length = Array.IndexOf(m_name, (byte)0);
+                if (length < 0) length = m_name.Length;
+                return Encoding.UTF8.GetString(m_name, 0, length);
+            }
+        }
     }
 }
