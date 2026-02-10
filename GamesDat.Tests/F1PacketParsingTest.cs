@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using GamesDat.Core.Telemetry.Sources.Formula1;
+using GamesDat.Core.Telemetry.Sources.Formula1.F12025;
 
 namespace GamesDat.Tests;
 
@@ -78,6 +79,76 @@ public class F1PacketParsingTest
             Assert.IsType(expectedPacketTypeStruct, packet);
             Assert.Equal(expectedPacketFormat, ((dynamic)packet).m_header.m_packetFormat);
             Assert.Equal(expectedPacketType, (PacketId)((dynamic)packet).m_header.m_packetId);
+        }
+    }
+
+    [Theory]
+    [InlineData("Fixtures/F1/2025/packet-3-BUTN.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "BUTN")]
+    [InlineData("Fixtures/F1/2025/packet-3-COLL.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "COLL")]
+    [InlineData("Fixtures/F1/2025/packet-3-FLBK.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "FLBK")]
+    [InlineData("Fixtures/F1/2025/packet-3-FTLP.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "FTLP")]
+    [InlineData("Fixtures/F1/2025/packet-3-LGOT.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "LGOT")]
+    [InlineData("Fixtures/F1/2025/packet-3-OVTK.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "OVTK")]
+    [InlineData("Fixtures/F1/2025/packet-3-PENA.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "PENA")]
+    [InlineData("Fixtures/F1/2025/packet-3-RCWN.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "RCWN")]
+    [InlineData("Fixtures/F1/2025/packet-3-RTMT.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "RTMT")]
+    [InlineData("Fixtures/F1/2025/packet-3-SEND.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "SEND")]
+    [InlineData("Fixtures/F1/2025/packet-3-SPTP.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "SPTP")]
+    [InlineData("Fixtures/F1/2025/packet-3-SSTA.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "SSTA")]
+    [InlineData("Fixtures/F1/2025/packet-3-STLG.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "STLG")]
+    [InlineData("Fixtures/F1/2025/packet-3-TMPT.bin", 2025, PacketId.Event, typeof(Core.Telemetry.Sources.Formula1.F12025.EventData), "TMPT")]
+    public void TestParseEventDetails_2025(string fixturePath, int expectedPacketFormat, PacketId expectedPacketType, Type expectedPacketTypeStruct, string expectedEventCode)
+    {
+        using (var reader = new BinaryReader(File.OpenRead(fixturePath)))
+        {
+            var packet = RawDataToObject(reader.ReadBytes((int)reader.BaseStream.Length), expectedPacketTypeStruct);
+
+            Assert.IsType(expectedPacketTypeStruct, packet);
+            Assert.Equal(expectedPacketFormat, ((dynamic)packet).m_header.m_packetFormat);
+            Assert.Equal(expectedPacketType, (PacketId)((dynamic)packet).m_header.m_packetId);
+            Assert.Equal(expectedEventCode, ((dynamic)packet).EventCode);
+
+            switch (expectedEventCode)
+            {
+                case EventCodes.ButtonStatus:
+                    var buttonData = ((dynamic)packet).GetEventDetails<ButtonsData>();
+                    Assert.NotNull(buttonData);
+                    break;
+                case EventCodes.Collision:
+                    var collisionData = ((dynamic)packet).GetEventDetails<CollisionData>();
+                    Assert.NotNull(collisionData);
+                    break;
+                case EventCodes.Flashback:
+                    var flashbackData = ((dynamic)packet).GetEventDetails<FlashbackData>();
+                    Assert.NotNull(flashbackData);
+                    break;
+                case EventCodes.FastestLap:
+                    var fastestLapData = ((dynamic)packet).GetEventDetails<FastestLapData>();
+                    Assert.NotNull(fastestLapData);
+                    break;
+                case EventCodes.StartLights:
+                    var lightsOut = ((dynamic)packet).GetEventDetails<StartLightsData>();
+                    Assert.NotNull(lightsOut);
+                    Assert.Equal(5, lightsOut.NumLights);
+                    break;
+                case EventCodes.LightsOut:
+                        var startLightsData = ((dynamic)packet).GetEventDetails<StartLightsData>();
+                        Assert.NotNull(startLightsData);
+                        Assert.Equal(0, startLightsData.NumLights);
+                    break;
+                case EventCodes.Overtake:
+                    var overtakeData = ((dynamic)packet).GetEventDetails<OvertakeData>();
+                    Assert.NotNull(overtakeData);
+                    break;
+                case EventCodes.Penalty:
+                    var penaltyData = ((dynamic)packet).GetEventDetails<PenaltyData>();
+                    Assert.NotNull(penaltyData);
+                    break;
+                case EventCodes.RaceWinner:
+                    var raceWinnerData = ((dynamic)packet).GetEventDetails<RaceWinnerData>();
+                    Assert.NotNull(raceWinnerData);
+                    break;
+            }
         }
     }
 

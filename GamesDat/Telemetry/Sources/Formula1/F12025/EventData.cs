@@ -35,6 +35,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
                 EventCodes.Overtake when typeof(T) == typeof(OvertakeData) => (T)(object)m_eventDetails.Overtake,
                 EventCodes.SafetyCar when typeof(T) == typeof(SafetyCarData) => (T)(object)m_eventDetails.SafetyCar,
                 EventCodes.Collision when typeof(T) == typeof(CollisionData) => (T)(object)m_eventDetails.Collision,
+                EventCodes.LightsOut when typeof(T) == typeof(StartLightsData) => (T)(object)m_eventDetails.LightsOut,
                 // fallback for unsupported event types or mismatched type requests
                 _ => throw new InvalidOperationException($"Cannot get {typeof(T).Name} for event {EventCode}")
             };

@@ -20,6 +20,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         [FieldOffset(0)] public OvertakeData Overtake;
         [FieldOffset(0)] public SafetyCarData SafetyCar;
         [FieldOffset(0)] public CollisionData Collision;
+        [FieldOffset(0)] public StartLightsData LightsOut;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
