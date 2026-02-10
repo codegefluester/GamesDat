@@ -1,6 +1,9 @@
 ﻿using GamesDat.Core;
 using GamesDat.Core.Reader;
+using GamesDat.Core.Telemetry.Sources;
 using GamesDat.Core.Telemetry.Sources.AssettoCorsa;
+using GamesDat.Core.Telemetry.Sources.Formula1;
+using GamesDat.Core.Telemetry.Sources.Formula1.F12025;
 using GamesDat.Core.Writer;
 
 namespace GamesDat.Demo
@@ -9,14 +12,95 @@ namespace GamesDat.Demo
     {
         static async Task Main(string[] args)
         {
-            if (args.Length > 0 && args[0] == "read")
+            //await CaptureF1SessionAsync();
+            //await ReadF1Session("./sessions/f1_20260210_220103.bin");
+        }
+
+        #region Formula 1
+        static async Task CaptureF1SessionAsync()
+        {
+            Console.WriteLine("F1 Telemetry Capture - Fluent API Demo");
+            Console.WriteLine("Press Ctrl+C to stop\n");
+            var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, e) =>
             {
-                await ReadSessionAsync(args.Length > 1 ? args[1] : null);
+                e.Cancel = true;
+                cts.Cancel();
+            };
+            try
+            {
+                var f1Source = new F1RealtimeTelemetrySource(new UdpSourceOptions{ Port = 20777 })
+                    .UseWriter(new BinarySessionWriter())
+                    .OutputTo($"./sessions/f1_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bin");
+                
+                await using var session = new GameSession()
+                    .AddSource(f1Source)
+                    .OnData<F1TelemetryFrame>(data =>
+                    {
+                        if ((int)data.PacketId == (int)PacketId.CarTelemetry)
+                        {
+                            var packet = data.GetPacket<CarTelemetryData>();
+                            var carData = packet.m_carTelemetryData[packet.m_header.m_playerCarIndex];
+                            Console.WriteLine($"Live: Speed {carData.m_speed} km/h | RPM {carData.m_engineRPM} | Gear {carData.m_gear}");
+                        }
+                    });
+                await session.StartAsync(cts.Token);
+                // Session is now running, wait for cancellation
+                await Task.Delay(Timeout.Infinite, cts.Token);
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("\nError: F1 is not running. Start F1 and try again.");
+            }
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("\nCapture stopped by user.");
+            }
+        }
+
+        static async Task ReadF1Session(string filePath)
+        {
+            Console.WriteLine($"Reading session: {filePath}");
+
+            // Check file size first
+            var fileInfo = new FileInfo(filePath);
+            Console.WriteLine($"File size: {fileInfo.Length:N0} bytes");
+
+            if (fileInfo.Length == 0)
+            {
+                Console.WriteLine("ERROR: Session file is empty!");
                 return;
             }
 
-            await CaptureSessionAsync();
+            Console.WriteLine("Starting to read frames...\n");
+
+            // Stats
+            int frameCount = 0;
+            try
+            {
+                await foreach (var (timestamp, data) in SessionReader.ReadAsync<F1TelemetryFrame>(filePath))
+                {
+                    if ((int)data.PacketId == (int)PacketId.CarTelemetry)
+                    {
+                        if (frameCount % 1000 == 0)
+                        {
+                            var packet = data.GetPacket<CarTelemetryData>();
+                            var carData = packet.m_carTelemetryData[packet.m_header.m_playerCarIndex];
+                            Console.WriteLine($"Live: Speed {carData.m_speed} km/h | RPM {carData.m_engineRPM} | Gear {carData.m_gear}");
+                        }
+                    }
+
+                    frameCount++;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nERROR while reading frames: {ex.Message}");
+                Console.WriteLine($"Exception type: {ex.GetType().Name}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
         }
+        #endregion
 
         #region Sim Racing
         static async Task CaptureSessionAsync()
