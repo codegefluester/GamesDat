@@ -24,6 +24,7 @@ namespace GamesDat.Core.Telemetry.Sources
 
             _endpoint = new IPEndPoint(IPAddress.Any, Port);
             _listener = new UdpClient(_endpoint);
+            _listener.Client.ReceiveBufferSize = BufferSize;
         }
 
         public override async IAsyncEnumerable<T> ReadContinuousAsync([EnumeratorCancellation] CancellationToken ct = default)
