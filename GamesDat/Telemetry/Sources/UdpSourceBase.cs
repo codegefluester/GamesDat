@@ -9,6 +9,8 @@ namespace GamesDat.Core.Telemetry.Sources
 {
     public abstract class UdpSourceBase<T> : TelemetrySourceBase<T>
     {
+        private readonly object _disposeLock = new object();
+        private bool _disposed;
 
         protected UdpClient _listener;
         protected IPEndPoint _endpoint;
@@ -46,7 +48,25 @@ namespace GamesDat.Core.Telemetry.Sources
             finally
             {
                 _isListening = false;
-                _listener.Dispose();
+            }
+        }
+
+        public override void Dispose()
+        {
+            lock (_disposeLock)
+            {
+                if (!_disposed)
+                {
+                    _disposed = true;
+                    try
+                    {
+                        _listener?.Dispose();
+                    }
+                    finally
+                    {
+                        base.Dispose();
+                    }
+                }
             }
         }
 
