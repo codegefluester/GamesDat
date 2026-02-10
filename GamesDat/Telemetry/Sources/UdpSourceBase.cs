@@ -56,9 +56,9 @@ namespace GamesDat.Core.Telemetry.Sources
             {
                 if (!_disposed)
                 {
+                    _disposed = true;
                     _listener?.Dispose();
                     base.Dispose();
-                    _disposed = true;
                 }
             }
         }
