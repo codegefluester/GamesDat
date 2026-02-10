@@ -57,10 +57,10 @@ namespace GamesDat.Core.Telemetry.Sources
                 if (!_disposed)
                 {
                     _listener?.Dispose();
+                    base.Dispose();
                     _disposed = true;
                 }
             }
-            base.Dispose();
         }
 
         abstract protected IEnumerable<T> ProcessData(byte[] data);
