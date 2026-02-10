@@ -36,18 +36,5 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
 
             yield return new F1TelemetryFrame(packetFormat, packetId, data);
         }
-
-        private static object BytesToStruct(byte[] bytes, Type type)
-        {
-            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            try
-            {
-                return Marshal.PtrToStructure(handle.AddrOfPinnedObject(), type)!;
-            }
-            finally
-            {
-                handle.Free();
-            }
-        }
     }
 }
