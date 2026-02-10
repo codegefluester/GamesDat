@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 
 namespace GamesDat.Demo.Wpf.ViewModels;
