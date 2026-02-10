@@ -3,6 +3,8 @@
                     xmlns:converters="clr-namespace:GamesDat.Demo.Wpf.Converters">
 
     <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    <converters:BoolToBorderBrushConverter x:Key="BoolToBorderBrushConverter"/>
+    <converters:BoolToBackgroundConverter x:Key="BoolToBackgroundConverter"/>
 
     <Style TargetType="Button">
         <Setter Property="Padding" Value="10,5"/>

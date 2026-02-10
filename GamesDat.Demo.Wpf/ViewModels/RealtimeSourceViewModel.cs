@@ -7,10 +7,11 @@ using GamesDat.Demo.Wpf.Models;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Windows.Input;
 
 namespace GamesDat.Demo.Wpf.ViewModels;
 
-public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
+public partial class RealtimeSourceViewModel : ViewModelBase, IRealtimeSource
 {
     private readonly Func<GameSession>? _sessionFactory;
     private GameSession? _session;
@@ -40,6 +41,11 @@ public partial class RealtimeSourceViewModel : ViewModelBase, IDisposable
     private string _currentRPM = "0";
 
     public ObservableCollection<TelemetryDataPoint> DataPoints { get; } = [];
+
+    // Explicit interface implementations for command covariance
+    ICommand IRealtimeSource.StartCommand => StartCommand;
+    ICommand IRealtimeSource.StopCommand => StopCommand;
+    ICommand IRealtimeSource.ClearDataCommand => ClearDataCommand;
 
     public RealtimeSourceViewModel(
         string sourceName,

@@ -9,10 +9,10 @@ namespace GamesDat.Demo.Wpf.ViewModels;
 
 public partial class RealtimeTabViewModel : ViewModelBase, IDisposable
 {
-    public ObservableCollection<RealtimeSourceViewModel> Sources { get; } = [];
+    public ObservableCollection<IRealtimeSource> Sources { get; } = [];
 
     [ObservableProperty]
-    private RealtimeSourceViewModel? _selectedSource;
+    private IRealtimeSource? _selectedSource;
 
     public RealtimeTabViewModel()
     {
@@ -72,6 +72,10 @@ public partial class RealtimeTabViewModel : ViewModelBase, IDisposable
 
         trackmaniaSourceRef = trackmaniaSource;
         Sources.Add(trackmaniaSource);
+
+        // Add F1 source
+        var f1Source = new F1RealtimeSourceViewModel();
+        Sources.Add(f1Source);
     }
 
     [RelayCommand]

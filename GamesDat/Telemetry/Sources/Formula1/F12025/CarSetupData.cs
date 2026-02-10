@@ -8,7 +8,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         public PacketHeader m_header;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 22)]
-        public CarSetupData[] m_carSetupData;
+        public CarSetup[] m_carSetupData;
 
         public float m_nextFrontWingValue;
     }
