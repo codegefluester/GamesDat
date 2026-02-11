@@ -67,12 +67,12 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         public static string GetLatestInstalledReplayPath()
         {
             var years = new[] { "25", "24", "23", "22" };
-            var path = years
+            var existingPath = years
                 .Select(GetReplayPathForYear)
                 .FirstOrDefault(Directory.Exists);
 
             // Default to F1 25 even if it doesn't exist
-            return path ?? GetReplayPathForYear("25");
+            return existingPath ?? GetReplayPathForYear("25");
         }
 
         private static string ResolveReplayPath(string? customPath, bool autoDetectLatestInstalled)

@@ -64,6 +64,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                     ? new[] { "*.frr" }
                     : options.Patterns,
                 IncludeSubdirectories = options.IncludeSubdirectories,
+                // Check for both default (00:00:00, used when constructed via string path)
+                // and LibraryDefaultDebounceDelay (1s, used when constructed via options without explicit delay)
                 DebounceDelay = options.DebounceDelay == default || options.DebounceDelay == LibraryDefaultDebounceDelay
                     ? F1DebounceDelay
                     : options.DebounceDelay
