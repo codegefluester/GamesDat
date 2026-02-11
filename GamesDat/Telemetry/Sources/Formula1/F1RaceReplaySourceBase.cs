@@ -8,6 +8,18 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
     /// </summary>
     public abstract class F1RaceReplaySourceBase : FileWatcherSourceBase
     {
+        /// <summary>
+        /// The default debounce delay used by FileWatcherOptions (1 second).
+        /// Note: This mirrors the default in FileWatcherOptions.DebounceDelay.
+        /// If that default changes, this constant should be updated to match.
+        /// </summary>
+        private static readonly TimeSpan LibraryDefaultDebounceDelay = TimeSpan.FromSeconds(1);
+
+        /// <summary>
+        /// The F1-specific debounce delay (2 seconds)
+        /// </summary>
+        private static readonly TimeSpan F1DebounceDelay = TimeSpan.FromSeconds(2);
+
         protected F1RaceReplaySourceBase(FileWatcherOptions options) : base(options)
         {
         }
@@ -33,7 +45,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                 Path = path,
                 Patterns = new[] { "*.frr" },
                 IncludeSubdirectories = false,
-                DebounceDelay = TimeSpan.FromSeconds(2)
+                DebounceDelay = F1DebounceDelay
             };
         }
 
@@ -54,8 +66,10 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                     ? new[] { "*.frr" }
                     : options.Patterns,
                 IncludeSubdirectories = options.IncludeSubdirectories,
-                DebounceDelay = options.DebounceDelay == default
-                    ? TimeSpan.FromSeconds(2)
+                // Check for both default (00:00:00, used when constructed via string path)
+                // and LibraryDefaultDebounceDelay (1s, used when constructed via options without explicit delay)
+                DebounceDelay = options.DebounceDelay == default || options.DebounceDelay == LibraryDefaultDebounceDelay
+                    ? F1DebounceDelay
                     : options.DebounceDelay
             };
         }
