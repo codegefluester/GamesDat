@@ -32,7 +32,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                     $"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}");
             }
 
-            return Unsafe.ReadUnaligned<T>(Unsafe.AsPointer(ref frame.RawData[0]));
+            void* ptr = Unsafe.AsPointer(ref frame.RawData[0]);
+            return Marshal.PtrToStructure<T>((IntPtr)ptr);
         }
 
         /// <summary>
