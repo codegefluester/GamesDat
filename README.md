@@ -39,7 +39,7 @@ Out of the box:
 | Age of Empires IV          | ✅                        | ❌                              | ⏳     |
 | Assetto Corsa Competizione | ❌                        | ✅ Physics, Graphics, Telemetry | ⏳     |
 | Brawlhalla                 | ✅                        | ❌                              | ✅     |
-| F1 25/24/23/22             | ⏳                        | ✅                              | ✅     |
+| F1 25/24/23/22             | ✅                        | ✅                              | ✅     |
 | Rocket League              | ✅                        | ❌                              | ✅     |
 | Rainbow Six Siege          | ✅                        | ❌                              | ✅     |
 | Counter-Strike 2           | ✅                        | ❌                              | ✅     |
