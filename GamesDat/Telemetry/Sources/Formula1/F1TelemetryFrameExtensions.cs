@@ -32,7 +32,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                     $"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}");
             }
 
-            return Unsafe.Read<T>(frame.RawData);
+            return Unsafe.ReadUnaligned<T>(Unsafe.AsPointer(ref frame.RawData[0]));
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                 throw new InvalidOperationException($"Packet data too small. Expected {expectedSize} bytes for {packetType.Name}, got {frame.DataLength}");
             }
 
-            byte* ptr = frame.RawData;
+            void* ptr = Unsafe.AsPointer(ref frame.RawData[0]);
             var result = Marshal.PtrToStructure((IntPtr)ptr, packetType);
             return result;
         }
@@ -61,7 +61,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         public static unsafe byte[] GetRawData(this F1TelemetryFrame frame)
         {
             var data = new byte[frame.DataLength];
-            byte* ptr = frame.RawData;
+            void* ptr = Unsafe.AsPointer(ref frame.RawData[0]);
             Marshal.Copy((IntPtr)ptr, data, 0, frame.DataLength);
             return data;
         }
