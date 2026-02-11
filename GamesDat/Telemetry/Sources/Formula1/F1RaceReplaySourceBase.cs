@@ -9,7 +9,9 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
     public abstract class F1RaceReplaySourceBase : FileWatcherSourceBase
     {
         /// <summary>
-        /// The default debounce delay used by FileWatcherOptions (1 second)
+        /// The default debounce delay used by FileWatcherOptions (1 second).
+        /// Note: This mirrors the default in FileWatcherOptions.DebounceDelay.
+        /// If that default changes, this constant should be updated to match.
         /// </summary>
         private static readonly TimeSpan LibraryDefaultDebounceDelay = TimeSpan.FromSeconds(1);
 
