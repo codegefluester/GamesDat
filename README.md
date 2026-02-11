@@ -168,6 +168,33 @@ await foreach (var (timestamp, data) in SessionReader.ReadAsync<ACCPhysics>("ses
 }
 ```
 
+## Testing Without Games
+
+Don't have the game installed? No problem! We provide **Mockoon** environments for testing integrations without running the actual game.
+
+### War Thunder Mock API
+
+Test the War Thunder integration using [Mockoon](https://mockoon.com/):
+
+```bash
+# Install Mockoon CLI
+npm install -g @mockoon/cli
+
+# Start the mock server
+cd mockoon
+mockoon-cli start --data war-thunder-environment.json
+```
+
+Or use the [Mockoon Desktop App](https://mockoon.com/download/) and import `mockoon/war-thunder-environment.json`.
+
+The mock API provides:
+- ✅ Both `/state` and `/indicators` endpoints on `localhost:8111`
+- ✅ Realistic dynamic data using Faker.js templates
+- ✅ Multiple response scenarios (flying, ground, not in match)
+- ✅ Handles 60Hz polling without issues
+
+See [mockoon/QUICKSTART.md](mockoon/QUICKSTART.md) for detailed instructions.
+
 ## Performance
 
 Typical metrics (ACC physics at 100Hz):

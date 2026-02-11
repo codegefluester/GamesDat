@@ -1,0 +1,12 @@
+# Mockoon logs
+*.log
+
+# Mockoon CLI output
+mockoon-cli.log
+
+# User-specific environment modifications
+*-local.json
+
+# Temporary files
+*.tmp
+*.temp

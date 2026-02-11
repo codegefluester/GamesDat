@@ -4,6 +4,7 @@ using GamesDat.Core.Telemetry.Sources;
 using GamesDat.Core.Telemetry.Sources.AssettoCorsa;
 using GamesDat.Core.Telemetry.Sources.Formula1;
 using GamesDat.Core.Telemetry.Sources.Formula1.F12025;
+using GamesDat.Core.Telemetry.Sources.WarThunder;
 using GamesDat.Core.Writer;
 
 namespace GamesDat.Demo
@@ -12,9 +13,36 @@ namespace GamesDat.Demo
     {
         static async Task Main(string[] args)
         {
-            await CaptureF1SessionAsync();
+            await CaptureWarThunderSession();
             //await ReadF1Session("./sessions/f1_20260210_220103.bin");
         }
+
+        #region War Thunder
+        static async Task CaptureWarThunderSession()
+        {
+            var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, e) =>
+            {
+                e.Cancel = true;
+                cts.Cancel();
+            };
+
+            var session = new GameSession()
+                .AddSource(
+                    WarThunderSources.CreateStateSource()
+                        .UseWriter(new BinarySessionWriter())
+                        .OutputTo($"./sessions/warthunder_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bin"))
+                .OnData<StateData>(data =>
+                {
+                    Console.WriteLine($"Altitude: {data.Altitude} | Speed {data.TrueAirspeed} | Throttle {data.Throttle}");
+                });
+
+            await session.StartAsync(cts.Token);
+
+            // Session is now running, wait for cancellation
+            await Task.Delay(Timeout.Infinite, cts.Token);
+        }
+        #endregion
 
         #region Formula 1
         static async Task CaptureF1SessionAsync()
