@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
 {
@@ -14,8 +15,8 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         public byte m_raceNumber;                       // Race number of the car
         public byte m_nationality;                      // Nationality of the driver
         
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string m_name;                           // Name of participant in UTF-8 format – null terminated
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+        public byte[] m_name;                           // Name of participant in UTF-8 format – null terminated
                                                         // Will be truncated with ... (U+2026) if too long
         public byte m_yourTelemetry;                    // The player's UDP setting, 0 = restricted, 1 = public
         public byte m_showOnlineNames;                  // The player's show online names setting, 0 = off, 1 = on
@@ -26,5 +27,18 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1.F12025
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
         public LiveryColour[] m_liveryColours;          // Colours for the car
 
+        /// <summary>
+        /// Gets the participant name as a decoded UTF-8 string
+        /// </summary>
+        public readonly string Name
+        {
+            get
+            {
+                if (m_name == null) return string.Empty;
+                int length = Array.IndexOf(m_name, (byte)0);
+                if (length < 0) length = m_name.Length;
+                return Encoding.UTF8.GetString(m_name, 0, length);
+            }
+        }
     }
 }

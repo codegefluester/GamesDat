@@ -12,7 +12,7 @@ namespace GamesDat.Demo
     {
         static async Task Main(string[] args)
         {
-            //await CaptureF1SessionAsync();
+            await CaptureF1SessionAsync();
             //await ReadF1Session("./sessions/f1_20260210_220103.bin");
         }
 
