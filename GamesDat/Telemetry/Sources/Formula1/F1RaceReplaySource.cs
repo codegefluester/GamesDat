@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace GamesDat.Core.Telemetry.Sources.Formula1
 {
@@ -12,7 +13,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
     public class F1RaceReplaySource : F1RaceReplaySourceBase
     {
         public F1RaceReplaySource(FileWatcherOptions options)
-            : base(ApplyDefaults(EnsurePath(options)))
+            : base(ApplyDefaults(options))
         {
         }
 
@@ -23,7 +24,13 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         {
             if (string.IsNullOrEmpty(options.Path))
             {
-                options.Path = F12025RaceReplaySource.GetDefaultReplayPath();
+                return new FileWatcherOptions
+                {
+                    Path = F12025RaceReplaySource.GetDefaultReplayPath(),
+                    Patterns = options.Patterns,
+                    IncludeSubdirectories = options.IncludeSubdirectories,
+                    DebounceDelay = options.DebounceDelay
+                };
             }
             return options;
         }
@@ -60,17 +67,12 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         public static string GetLatestInstalledReplayPath()
         {
             var years = new[] { "25", "24", "23", "22" };
-            foreach (var year in years)
-            {
-                var path = GetReplayPathForYear(year);
-                if (Directory.Exists(path))
-                {
-                    return path;
-                }
-            }
+            var path = years
+                .Select(GetReplayPathForYear)
+                .FirstOrDefault(Directory.Exists);
 
             // Default to F1 25 even if it doesn't exist
-            return GetReplayPathForYear("25");
+            return path ?? GetReplayPathForYear("25");
         }
 
         private static string ResolveReplayPath(string? customPath, bool autoDetectLatestInstalled)

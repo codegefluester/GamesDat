@@ -7,7 +7,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
     public class F12023RaceReplaySource : F1RaceReplaySourceBase
     {
         public F12023RaceReplaySource(FileWatcherOptions options)
-            : base(ApplyDefaults(EnsurePath(options)))
+            : base(ApplyDefaults(options))
         {
         }
 
@@ -25,7 +25,13 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
         {
             if (string.IsNullOrEmpty(options.Path))
             {
-                options.Path = GetDefaultReplayPath();
+                return new FileWatcherOptions
+                {
+                    Path = GetDefaultReplayPath(),
+                    Patterns = options.Patterns,
+                    IncludeSubdirectories = options.IncludeSubdirectories,
+                    DebounceDelay = options.DebounceDelay
+                };
             }
             return options;
         }

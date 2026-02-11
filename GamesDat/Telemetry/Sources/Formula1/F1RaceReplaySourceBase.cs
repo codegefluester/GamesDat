@@ -54,7 +54,7 @@ namespace GamesDat.Core.Telemetry.Sources.Formula1
                     ? new[] { "*.frr" }
                     : options.Patterns,
                 IncludeSubdirectories = options.IncludeSubdirectories,
-                DebounceDelay = options.DebounceDelay == default
+                DebounceDelay = options.DebounceDelay == default || options.DebounceDelay == TimeSpan.FromSeconds(1)
                     ? TimeSpan.FromSeconds(2)
                     : options.DebounceDelay
             };
