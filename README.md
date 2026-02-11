@@ -53,6 +53,7 @@ Out of the box:
 | Trackmania                 | ✅                        | ✅                              | ✅     |
 | iRacing                    | ✅ IBT, Replay, OLAP/BLAP | ⏳ Telemetry and Session info   | ⏳     |
 | Valorant                   | ✅                        | ❌                              | ✅     |
+| War Thunder                | ❌                        | ✅ State, Indicators            | ⏳     |
 
 [Adding your own game →](docs/CREATING_SOURCES.md)
 
@@ -129,6 +130,31 @@ await using var session = new GameSession()
     .OnData<TrackmaniaDataV3>(frame => {
         Console.WriteLine($"Speed: {frame.Speed} km/h");
     });
+
+await session.StartAsync();
+```
+
+### HTTP polling (War Thunder)
+
+```csharp
+// Capture War Thunder telemetry from HTTP API at 60Hz
+await using var session = new GameSession()
+    .AddSource(WarThunderSources.CreateStateSource(hz: 60))
+    .OnData<StateData>(data =>
+        Console.WriteLine($"Speed: {data.IndicatedAirspeed} km/h, Alt: {data.Altitude}m"));
+
+await session.StartAsync();
+```
+
+### Multiple endpoints with different polling rates
+
+```csharp
+// High frequency state + low frequency indicators
+await using var session = new GameSession()
+    .AddSource(WarThunderSources.CreateStateSource(hz: 60))      // 60Hz
+    .AddSource(WarThunderSources.CreateIndicatorsSource(hz: 10)) // 10Hz
+    .OnData<StateData>(data => Console.WriteLine($"[State] Speed: {data.IndicatedAirspeed}"))
+    .OnData<IndicatorsData>(data => Console.WriteLine($"[Indicators] Oil: {data.OilTemp}°C"));
 
 await session.StartAsync();
 ```
