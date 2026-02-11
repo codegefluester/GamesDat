@@ -98,12 +98,33 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
                 // JSON parse errors are logged but don't trigger aggressive retry
                 Console.WriteLine($"[{GetType().Name}] JSON parse error (skipping frame): {ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                // Clean cancellation
-                yield break;
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    // Clean cancellation requested by caller
+                    yield break;
+                }
+
+                // Timeout cancellation from linkedCts (request timeout) - treat as connection error
+                _consecutiveErrors++;
+
+                if (firstError)
+                {
+                    Console.WriteLine($"[{GetType().Name}] Connection error: {ex.Message}");
+                    Console.WriteLine($"[{GetType().Name}] Retrying with exponential backoff...");
+                    firstError = false;
+                }
+
+                if (_consecutiveErrors >= _options.MaxConsecutiveErrors)
+                {
+                    errorToThrow = new InvalidOperationException(
+                        $"Failed to connect after {_consecutiveErrors} consecutive attempts. " +
+                        $"Ensure the game is running and the API is accessible at {fullUrl}",
+                        ex);
+                }
             }
-            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            catch (HttpRequestException ex)
             {
                 // Connection/timeout errors - use exponential backoff
                 _consecutiveErrors++;
