@@ -1,0 +1,223 @@
+{
+  "uuid": "ebdd993d-e40f-431b-b740-da45899e8a84",
+  "lastMigration": 33,
+  "name": "War Thunder Telemetry API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 8111,
+  "hostname": "localhost",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "353f2cab-4501-4606-a647-8bda5bed8636",
+      "type": "http",
+      "documentation": "Primary flight/vehicle telemetry data. Contains position, velocity, flight parameters, engine data, and controls. Recommended polling rate: 60Hz.",
+      "method": "get",
+      "endpoint": "state",
+      "responses": [
+        {
+          "uuid": "42fee875-9751-4ee4-b411-04d05d3b993b",
+          "body": "{\n  \"valid\": 1,\n  \"X\": {{faker 'number.float' min=-10000 max=10000 precision=0.01}},\n  \"Y\": {{faker 'number.float' min=100 max=5000 precision=0.01}},\n  \"Z\": {{faker 'number.float' min=-10000 max=10000 precision=0.01}},\n  \"Vx\": {{faker 'number.float' min=-50 max=50 precision=0.01}},\n  \"Vy\": {{faker 'number.float' min=-20 max=20 precision=0.01}},\n  \"Vz\": {{faker 'number.float' min=-50 max=50 precision=0.01}},\n  \"Wx\": {{faker 'number.float' min=-0.5 max=0.5 precision=0.001}},\n  \"Wy\": {{faker 'number.float' min=-0.5 max=0.5 precision=0.001}},\n  \"Wz\": {{faker 'number.float' min=-0.5 max=0.5 precision=0.001}},\n  \"AoA\": {{faker 'number.float' min=-5 max=15 precision=0.1}},\n  \"AoS\": {{faker 'number.float' min=-3 max=3 precision=0.1}},\n  \"IAS\": {{faker 'number.float' min=250 max=600 precision=0.1}},\n  \"TAS\": {{faker 'number.float' min=280 max=650 precision=0.1}},\n  \"M\": {{faker 'number.float' min=0.4 max=0.9 precision=0.01}},\n  \"H\": {{faker 'number.float' min=500 max=4000 precision=0.1}},\n  \"Ny\": {{faker 'number.float' min=0.8 max=2.5 precision=0.01}},\n  \"throttle\": {{faker 'number.float' min=0.7 max=1.0 precision=0.01}},\n  \"RPM\": {{faker 'number.float' min=2200 max=2800 precision=1}},\n  \"manifold_pressure\": {{faker 'number.float' min=0.8 max=1.2 precision=0.01}},\n  \"power\": {{faker 'number.float' min=0.7 max=1.0 precision=0.01}},\n  \"flaps\": {{faker 'number.float' min=0 max=1 precision=0.1}},\n  \"gear\": {{faker 'number.float' min=0 max=1 precision=0.1}},\n  \"airbrake\": {{faker 'number.float' min=0 max=1 precision=0.1}},\n  \"compass\": {{faker 'number.float' min=0 max=360 precision=0.1}},\n  \"fuel\": {{faker 'number.float' min=200 max=800 precision=1}},\n  \"time\": 1770825735\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Flying - Dynamic Values",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "1c61dacd-8e26-4e41-9eed-4ff288b109a6",
+          "body": "{\n  \"valid\": 1,\n  \"X\": 0.0,\n  \"Y\": 0.0,\n  \"Z\": 0.0,\n  \"Vx\": 0.0,\n  \"Vy\": 0.0,\n  \"Vz\": 0.0,\n  \"Wx\": 0.0,\n  \"Wy\": 0.0,\n  \"Wz\": 0.0,\n  \"AoA\": 0.0,\n  \"AoS\": 0.0,\n  \"IAS\": 0.0,\n  \"TAS\": 0.0,\n  \"M\": 0.0,\n  \"H\": 0.0,\n  \"Ny\": 1.0,\n  \"throttle\": 0.0,\n  \"RPM\": 800.0,\n  \"manifold_pressure\": 0.3,\n  \"power\": 0.0,\n  \"flaps\": 0.0,\n  \"gear\": 1.0,\n  \"airbrake\": 0.0,\n  \"compass\": 0.0,\n  \"fuel\": 500.0,\n  \"time\": {{now}}\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "On Ground - Idle",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "daabf60d-29a4-4c53-9cbc-e270a5f98daf",
+          "body": "{\n  \"valid\": 0,\n  \"X\": 0.0,\n  \"Y\": 0.0,\n  \"Z\": 0.0,\n  \"Vx\": 0.0,\n  \"Vy\": 0.0,\n  \"Vz\": 0.0,\n  \"Wx\": 0.0,\n  \"Wy\": 0.0,\n  \"Wz\": 0.0,\n  \"AoA\": 0.0,\n  \"AoS\": 0.0,\n  \"IAS\": 0.0,\n  \"TAS\": 0.0,\n  \"M\": 0.0,\n  \"H\": 0.0,\n  \"Ny\": 0.0,\n  \"throttle\": 0.0,\n  \"RPM\": 0.0,\n  \"manifold_pressure\": 0.0,\n  \"power\": 0.0,\n  \"flaps\": 0.0,\n  \"gear\": 0.0,\n  \"airbrake\": 0.0,\n  \"compass\": 0.0,\n  \"fuel\": 0.0,\n  \"time\": {{now}}\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Not in Match",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "7c6986e0-4852-4119-9275-4985464c6b31",
+      "type": "http",
+      "documentation": "Cockpit instrumentation data. Contains instrument panel readings like speed indicators, engine instruments, attitude, altimeter, and clock. Recommended polling rate: 10Hz.",
+      "method": "get",
+      "endpoint": "indicators",
+      "responses": [
+        {
+          "uuid": "32b93b52-21c5-49cf-9da8-6bec6ac6cde2",
+          "body": "{\n  \"valid\": 1,\n  \"type\": 0,\n  \"speed\": {{faker 'number.float' min=250 max=600 precision=1}},\n  \"pedal_position\": {{faker 'number.float' min=0.5 max=1.0 precision=0.01}},\n  \"rpm_hour\": {{faker 'number.float' min=0 max=10 precision=0.1}},\n  \"rpm_min\": {{faker 'number.float' min=0 max=60 precision=0.1}},\n  \"manifold_pressure\": {{faker 'number.float' min=0.8 max=1.2 precision=0.01}},\n  \"oil_temp\": {{faker 'number.float' min=80 max=120 precision=0.1}},\n  \"water_temp\": {{faker 'number.float' min=70 max=110 precision=0.1}},\n  \"aviahorizon_roll\": {{faker 'number.float' min=-30 max=30 precision=0.1}},\n  \"aviahorizon_pitch\": {{faker 'number.float' min=-15 max=15 precision=0.1}},\n  \"altitude_hour\": {{faker 'number.float' min=0 max=10 precision=0.1}},\n  \"altitude_min\": {{faker 'number.float' min=0 max=60 precision=0.1}},\n  \"altitude_10k\": {{faker 'number.float' min=0 max=10 precision=0.1}},\n  \"vertical_speed\": {{faker 'number.float' min=-10 max=10 precision=0.1}},\n  \"compass\": {{faker 'number.float' min=0 max=360 precision=0.1}},\n  \"compass1\": {{faker 'number.float' min=0 max=360 precision=0.1}},\n  \"clock_hour\": {{faker 'number.float' min=0 max=12 precision=0.1}},\n  \"clock_min\": {{faker 'number.float' min=0 max=60 precision=0.1}},\n  \"clock_sec\": {{faker 'number.float' min=0 max=60 precision=0.1}}\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Flying - Dynamic Values",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "3b6b1a99-c098-4e92-8f2d-15e060b72a9e",
+          "body": "{\n  \"valid\": 1,\n  \"type\": 0,\n  \"speed\": 0.0,\n  \"pedal_position\": 0.0,\n  \"rpm_hour\": 0.0,\n  \"rpm_min\": 10.0,\n  \"manifold_pressure\": 0.3,\n  \"oil_temp\": 60.0,\n  \"water_temp\": 50.0,\n  \"aviahorizon_roll\": 0.0,\n  \"aviahorizon_pitch\": 0.0,\n  \"altitude_hour\": 0.0,\n  \"altitude_min\": 0.0,\n  \"altitude_10k\": 0.0,\n  \"vertical_speed\": 0.0,\n  \"compass\": 0.0,\n  \"compass1\": 0.0,\n  \"clock_hour\": 10.0,\n  \"clock_min\": 30.0,\n  \"clock_sec\": 45.0\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "On Ground - Idle",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "12eb8f32-baf3-4c73-9821-7692f7f2fc77",
+          "body": "{\n  \"valid\": 0,\n  \"type\": 0,\n  \"speed\": 0.0,\n  \"pedal_position\": 0.0,\n  \"rpm_hour\": 0.0,\n  \"rpm_min\": 0.0,\n  \"manifold_pressure\": 0.0,\n  \"oil_temp\": 0.0,\n  \"water_temp\": 0.0,\n  \"aviahorizon_roll\": 0.0,\n  \"aviahorizon_pitch\": 0.0,\n  \"altitude_hour\": 0.0,\n  \"altitude_min\": 0.0,\n  \"altitude_10k\": 0.0,\n  \"vertical_speed\": 0.0,\n  \"compass\": 0.0,\n  \"compass1\": 0.0,\n  \"clock_hour\": 0.0,\n  \"clock_min\": 0.0,\n  \"clock_sec\": 0.0\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Not in Match",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "353f2cab-4501-4606-a647-8bda5bed8636"
+    },
+    {
+      "type": "route",
+      "uuid": "7c6986e0-4852-4119-9275-4985464c6b31"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

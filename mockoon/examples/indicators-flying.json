@@ -1,0 +1,22 @@
+{
+  "valid": 1,
+  "type": 0,
+  "speed": 425.8,
+  "pedal_position": 0.85,
+  "rpm_hour": 2.65,
+  "rpm_min": 26.5,
+  "manifold_pressure": 1.05,
+  "oil_temp": 95.3,
+  "water_temp": 88.7,
+  "aviahorizon_roll": -12.5,
+  "aviahorizon_pitch": 8.3,
+  "altitude_hour": 2.845,
+  "altitude_min": 28.45,
+  "altitude_10k": 0.2845,
+  "vertical_speed": 5.2,
+  "compass": 127.3,
+  "compass1": 127.3,
+  "clock_hour": 10.5,
+  "clock_min": 30.0,
+  "clock_sec": 45.0
+}
