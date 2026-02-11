@@ -124,7 +124,7 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
                         ex);
                 }
             }
-            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            catch (HttpRequestException ex)
             {
                 // Connection/timeout errors - use exponential backoff
                 _consecutiveErrors++;
