@@ -106,7 +106,7 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
                     yield break;
                 }
 
-                // Treat other cancellations (e.g., request timeouts) as connection/timeout errors
+                // Timeout cancellation from linkedCts (request timeout) - treat as connection error
                 _consecutiveErrors++;
 
                 if (firstError)
