@@ -21,26 +21,43 @@ namespace GamesDat.Demo
         static async Task CaptureWarThunderSession()
         {
             var cts = new CancellationTokenSource();
-            Console.CancelKeyPress += (s, e) =>
+            ConsoleCancelEventHandler handler = (s, e) =>
             {
                 e.Cancel = true;
                 cts.Cancel();
             };
+            Console.CancelKeyPress += handler;
 
-            var session = new GameSession()
-                .AddSource(
-                    WarThunderSources.CreateStateSource()
-                        .UseWriter(new BinarySessionWriter())
-                        .OutputTo($"./sessions/warthunder_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bin"))
-                .OnData<StateData>(data =>
-                {
-                    Console.WriteLine($"Altitude: {data.Altitude} | Speed {data.TrueAirspeed} | Throttle {data.Throttle}");
-                });
+            try
+            {
+                var session = new GameSession()
+                    .AddSource(
+                        WarThunderSources.CreateStateSource()
+                            .UseWriter(new BinarySessionWriter())
+                            .OutputTo($"./sessions/warthunder_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bin"))
+                    .OnData<StateData>(data =>
+                    {
+                        Console.WriteLine($"Altitude: {data.Altitude} | Speed {data.TrueAirspeed} | Throttle {data.Throttle}");
+                    });
 
-            await session.StartAsync(cts.Token);
+                await session.StartAsync(cts.Token);
 
-            // Session is now running, wait for cancellation
-            await Task.Delay(Timeout.Infinite, cts.Token);
+                // Session is now running, wait for cancellation
+                await Task.Delay(Timeout.Infinite, cts.Token);
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("\nError: War Thunder is not running. Start War Thunder and try again.");
+            }
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("\nCapture stopped by user.");
+            }
+            finally
+            {
+                Console.CancelKeyPress -= handler;
+                cts.Dispose();
+            }
         }
         #endregion
 

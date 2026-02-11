@@ -370,5 +370,5 @@ War Thunder API documentation and community tools:
 ## See Also
 
 - [Creating Custom Sources](CREATING_SOURCES.md)
-- [GameSession API Reference](API_REFERENCE.md)
-- [Performance Tuning Guide](PERFORMANCE.md)
+- GameSession API Reference (coming soon)
+- Performance Tuning Guide (coming soon)
