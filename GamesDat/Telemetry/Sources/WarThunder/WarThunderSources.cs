@@ -17,6 +17,9 @@ public static class WarThunderSources
     /// <returns>A configured StateSource instance.</returns>
     public static StateSource CreateStateSource(string? baseUrl = null, int hz = 60)
     {
+        if (hz <= 0)
+            throw new ArgumentOutOfRangeException(nameof(hz), hz, "Polling frequency must be greater than 0");
+        
         var pollInterval = TimeSpan.FromMilliseconds(1000.0 / hz);
         return new StateSource(baseUrl ?? DefaultBaseUrl, pollInterval);
     }
@@ -39,6 +42,9 @@ public static class WarThunderSources
     /// <returns>A configured IndicatorsSource instance.</returns>
     public static IndicatorsSource CreateIndicatorsSource(string? baseUrl = null, int hz = 10)
     {
+        if (hz <= 0)
+            throw new ArgumentOutOfRangeException(nameof(hz), hz, "Polling frequency must be greater than 0");
+        
         var pollInterval = TimeSpan.FromMilliseconds(1000.0 / hz);
         return new IndicatorsSource(baseUrl ?? DefaultBaseUrl, pollInterval);
     }
