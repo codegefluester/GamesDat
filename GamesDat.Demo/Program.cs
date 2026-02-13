@@ -20,6 +20,17 @@ namespace GamesDat.Demo
         #region War Thunder
         static async Task CaptureWarThunderSession()
         {
+            Console.WriteLine("═══════════════════════════════════════════════════════");
+            Console.WriteLine("   WAR THUNDER REAL-TIME TELEMETRY MONITOR");
+            Console.WriteLine("═══════════════════════════════════════════════════════");
+            Console.WriteLine();
+            Console.WriteLine("Waiting for War Thunder match to start...");
+            Console.WriteLine("(Launch War Thunder and enter a battle)");
+            Console.WriteLine();
+            Console.WriteLine("Press Ctrl+C to stop");
+            Console.WriteLine("═══════════════════════════════════════════════════════");
+            Console.WriteLine();
+
             var cts = new CancellationTokenSource();
             ConsoleCancelEventHandler handler = (s, e) =>
             {
@@ -28,36 +39,122 @@ namespace GamesDat.Demo
             };
             Console.CancelKeyPress += handler;
 
-            try
-            {
-                var session = new GameSession()
-                    .AddSource(
-                        WarThunderSources.CreateStateSource()
-                            .UseWriter(new BinarySessionWriter())
-                            .OutputTo($"./sessions/warthunder_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bin"))
-                    .OnData<StateData>(data =>
+            var lastValidData = false;
+            var frameCount = 0;
+
+            var session = new GameSession()
+                .AddSource(
+                    WarThunderSources.CreateStateSource(hz: 60) // 10Hz for readable console output
+                        .UseWriter(new BinarySessionWriter())
+                        .OutputTo($"./sessions/warthunder_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bin"))
+                .OnData<StateData>(data =>
+                {
+                    frameCount++;
+
+                    // Detect match state changes
+                    if (data.Valid && !lastValidData)
                     {
-                        Console.WriteLine($"Altitude: {data.Altitude} | Speed {data.TrueAirspeed} | Throttle {data.Throttle}");
-                    });
+                        Console.Clear();
+                        Console.WriteLine("═══════════════════════════════════════════════════════");
+                        Console.WriteLine("   ✈️  MATCH STARTED - LIVE TELEMETRY");
+                        Console.WriteLine("═══════════════════════════════════════════════════════");
+                        Console.WriteLine();
+                    }
+                    else if (!data.Valid && lastValidData)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("═══════════════════════════════════════════════════════");
+                        Console.WriteLine("   MATCH ENDED - Waiting for next battle...");
+                        Console.WriteLine("═══════════════════════════════════════════════════════");
+                        Console.WriteLine();
+                    }
 
-                await session.StartAsync(cts.Token);
+                    lastValidData = data.Valid;
 
-                // Session is now running, wait for cancellation
-                await Task.Delay(Timeout.Infinite, cts.Token);
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("\nError: War Thunder is not running. Start War Thunder and try again.");
-            }
-            catch (OperationCanceledException)
-            {
-                Console.WriteLine("\nCapture stopped by user.");
-            }
-            finally
-            {
-                Console.CancelKeyPress -= handler;
-                cts.Dispose();
-            }
+                    if (data.Valid)
+                    {
+                        // Clear and redraw dashboard every frame
+                        if (frameCount % 1 == 0) // Update every frame (10Hz)
+                        {
+                            Console.SetCursorPosition(0, 4);
+                            DrawDashboard(data);
+                        }
+                    }
+                });
+
+            await session.StartAsync(cts.Token);
+            await Task.Delay(Timeout.Infinite, cts.Token);
+        }
+
+        static void DrawDashboard(StateData data)
+        {
+            var engineCount = GetActiveEngineCount(data);
+
+            Console.WriteLine("╔═══════════════════════════════════════════════════════╗");
+            Console.WriteLine("║              FLIGHT PARAMETERS                        ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            Console.WriteLine($"║ Altitude:        {data.AltitudeMeters,8:F0} m                        ║");
+            Console.WriteLine($"║ IAS:             {data.IndicatedAirspeedKmh,8:F0} km/h                    ║");
+            Console.WriteLine($"║ TAS:             {data.TrueAirspeedKmh,8:F0} km/h                    ║");
+            Console.WriteLine($"║ Mach:            {data.Mach,8:F2}                          ║");
+            Console.WriteLine($"║ Vertical Speed:  {data.VyMs,8:F1} m/s                     ║");
+            Console.WriteLine($"║                                                       ║");
+            Console.WriteLine($"║ AoA (Attack):    {data.AngleOfAttackDeg,8:F1}°                       ║");
+            Console.WriteLine($"║ AoS (Slip):      {data.AngleOfSlipDeg,8:F1}°                       ║");
+            Console.WriteLine($"║ G-Force:         {data.Ny,8:F2} g                        ║");
+            Console.WriteLine($"║ Roll Rate:       {data.WxDegPerSec,8:F0}°/s                      ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            Console.WriteLine("║              CONTROL SURFACES                         ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            Console.WriteLine($"║ Aileron:         {data.AileronPercent,8:F1}%    {GetBar(data.AileronPercent, 100)}");
+            Console.WriteLine($"║ Elevator:        {data.ElevatorPercent,8:F1}%    {GetBar(data.ElevatorPercent, 100)}");
+            Console.WriteLine($"║ Rudder:          {data.RudderPercent,8:F1}%    {GetBar(data.RudderPercent, 100)}");
+            Console.WriteLine($"║ Flaps:           {data.FlapsPercent,8:F1}%    {GetBar(data.FlapsPercent, 100)}");
+            Console.WriteLine($"║ Gear:            {data.GearPercent,8:F1}%    {(data.GearPercent > 0 ? "DOWN ✓" : "UP")}     ║");
+            Console.WriteLine($"║ Airbrake:        {data.AirbrakePercent,8:F1}%    {(data.AirbrakePercent > 0 ? "DEPLOYED" : "RETRACTED")} ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            Console.WriteLine($"║              ENGINE {(engineCount > 1 ? $"(1 of {engineCount})" : "STATUS")}                       ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            Console.WriteLine($"║ Throttle:        {data.Throttle1Percent,8:F1}%    {GetBar(data.Throttle1Percent, 100)}");
+            Console.WriteLine($"║ RPM:             {data.Rpm1,8:F0}                          ║");
+            Console.WriteLine($"║ Power:           {data.Power1Hp,8:F1} hp                      ║");
+            Console.WriteLine($"║ Manifold Press:  {data.ManifoldPressure1Atm,8:F2} atm                     ║");
+            Console.WriteLine($"║ Mixture:         {data.Mixture1Percent,8:F1}%                         ║");
+            Console.WriteLine($"║ Radiator:        {data.Radiator1Percent,8:F1}%                         ║");
+            Console.WriteLine($"║ Water Temp:      {data.WaterTemp1C,8:F0}°C                        ║");
+            Console.WriteLine($"║ Oil Temp:        {data.OilTemp1C,8:F0}°C                        ║");
+            Console.WriteLine($"║ Thrust:          {data.Thrust1Kgs,8:F0} kgf                      ║");
+            Console.WriteLine($"║ Prop Pitch:      {data.Pitch1Deg,8:F1}°                        ║");
+            Console.WriteLine($"║ Efficiency:      {data.Efficiency1Percent,8:F1}%                         ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            Console.WriteLine("║              FUEL STATUS                              ║");
+            Console.WriteLine("╠═══════════════════════════════════════════════════════╣");
+            var fuelPercent = data.FuelMassInitialKg > 0 ? (data.FuelMassKg / data.FuelMassInitialKg * 100) : 0;
+            Console.WriteLine($"║ Current Fuel:    {data.FuelMassKg,8:F1} kg ({fuelPercent,5:F1}%)              ║");
+            Console.WriteLine($"║ Initial Fuel:    {data.FuelMassInitialKg,8:F1} kg                       ║");
+            Console.WriteLine($"║ Fuel Used:       {(data.FuelMassInitialKg - data.FuelMassKg),8:F1} kg                       ║");
+            Console.WriteLine("╚═══════════════════════════════════════════════════════╝");
+            Console.WriteLine();
+            Console.WriteLine($"  Recording to file... | Press Ctrl+C to stop");
+            Console.Write("  "); // Clear any extra characters
+        }
+
+        static int GetActiveEngineCount(StateData data)
+        {
+            var count = 0;
+            if (data.Rpm1 > 0 || data.Throttle1Percent > 0) count = 1;
+            if (data.Rpm2 > 0 || data.Throttle2Percent > 0) count = 2;
+            if (data.Rpm3 > 0 || data.Throttle3Percent > 0) count = 3;
+            if (data.Rpm4 > 0 || data.Throttle4Percent > 0) count = 4;
+            return count > 0 ? count : 1; // Default to 1
+        }
+
+        static string GetBar(float value, float max, int width = 15)
+        {
+            var percent = Math.Abs(value) / max;
+            var filled = (int)(percent * width);
+            var bar = new string('█', Math.Min(filled, width)) + new string('░', Math.Max(width - filled, 0));
+            return $"[{bar}]║";
         }
         #endregion
 

@@ -143,7 +143,7 @@ namespace GamesDat.Core
                 {
                     Console.WriteLine($"[{SourceTypeName}] Starting source...");
                     int frameCount = 0;
-
+                     
                     await foreach (var data in _source.ReadContinuousAsync(ct))
                     {
                         frameCount++;
@@ -185,7 +185,18 @@ namespace GamesDat.Core
                 }
                 catch (OperationCanceledException)
                 {
-                    // Normal cancellation
+                    // Check if this was expected cancellation
+                    if (ct.IsCancellationRequested)
+                    {
+                        // Normal cancellation from user (Ctrl+C)
+                        Console.WriteLine($"[{SourceTypeName}] Stopped by user");
+                    }
+                    else
+                    {
+                        // Unexpected cancellation - this shouldn't happen
+                        Console.WriteLine($"[{SourceTypeName}] WARNING: Unexpected cancellation (not from user request)");
+                        Console.WriteLine($"[{SourceTypeName}]   This may indicate a premature termination issue");
+                    }
                 }
                 catch (Exception ex)
                 {
