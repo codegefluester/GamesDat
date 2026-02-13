@@ -12,7 +12,6 @@ namespace GamesDat.Core.Telemetry.Sources.WarThunder;
 public class StateSource : HttpPollingSourceBase<StateData>
 {
     private readonly StateSourceOptions _stateOptions;
-    private DateTime _lastInvalidFrameLog = DateTime.MinValue;
 
     /// <summary>
     /// Initializes a new instance with StateSourceOptions.
@@ -31,8 +30,7 @@ public class StateSource : HttpPollingSourceBase<StateData>
     public StateSource(HttpPollingSourceOptions options)
         : this(new StateSourceOptions
         {
-            HttpOptions = options,
-            SkipInvalidFrames = true
+            HttpOptions = options
         })
     {
     }
@@ -50,29 +48,20 @@ public class StateSource : HttpPollingSourceBase<StateData>
                 BaseUrl = baseUrl,
                 EndpointPath = "/state",
                 PollInterval = pollInterval
-            },
-            SkipInvalidFrames = true
+            }
         })
     {
     }
 
     /// <summary>
-    /// Continuously polls the HTTP endpoint and yields valid telemetry data.
-    /// Filters out invalid frames if SkipInvalidFrames is enabled.
+    /// Continuously polls the HTTP endpoint and yields telemetry data.
     /// </summary>
     public override async IAsyncEnumerable<StateData> ReadContinuousAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         await foreach (var data in base.ReadContinuousAsync(cancellationToken))
         {
-            // If not filtering invalid frames, yield everything
-            if (!_stateOptions.SkipInvalidFrames)
-            {
-                yield return data;
-                continue;
-            }
-
-            yield return data;            
+            yield return data;
         }
     }
 }

@@ -189,7 +189,7 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T>
                 yield return data;
                 await Task.Delay(_options.PollInterval, cancellationToken);
             }
-            else if (!hasData)
+            else
             {
                 // Wait before retry (for connection errors or JSON errors)
                 var delayTime = _consecutiveErrors > 0 ? _currentRetryDelay : _options.PollInterval;
