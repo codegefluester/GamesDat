@@ -12,14 +12,15 @@ namespace GamesDat.Core.Telemetry.Sources;
 /// Abstract base class for HTTP polling-based telemetry sources.
 /// Handles HTTP request lifecycle, polling loop, retry logic, and JSON deserialization.
 /// </summary>
-/// <typeparam name="T">The telemetry data type (must be unmanaged struct).</typeparam>
-public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T : unmanaged
+/// <typeparam name="T">The telemetry data type.</typeparam>
+public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T>
 {
     private readonly HttpClient _httpClient;
     private readonly HttpPollingSourceOptions _options;
     private readonly bool _ownsClient;
     private int _consecutiveErrors;
     private TimeSpan _currentRetryDelay;
+    private DateTime _retryStartTime;
 
     /// <summary>
     /// Initializes a new instance with a provided HttpClient.
@@ -52,10 +53,19 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
     {
         var fullUrl = _options.GetFullUrl();
         var firstError = true;
+        var loopStartTime = DateTime.UtcNow;
+
+        if (_options.EnableDebugLogging)
+        {
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Polling loop started at {loopStartTime:HH:mm:ss.fff}");
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Target URL: {fullUrl}");
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Poll interval: {_options.PollInterval.TotalMilliseconds}ms");
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Cancellation requested: {cancellationToken.IsCancellationRequested}");
+        }
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            T? data = default;
+            T data = default!;
             bool hasData = false;
             Exception? errorToThrow = null;
 
@@ -88,7 +98,17 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
                 data = ParseJson(json);
                 hasData = true;
 
+                if (_options.EnableDebugLogging)
+                {
+                    Console.WriteLine($"[{GetType().Name}] [DEBUG] Poll successful at {DateTime.UtcNow:HH:mm:ss.fff}");
+                }
+
                 // Success - reset error tracking
+                if (_consecutiveErrors > 0 && _options.EnableDebugLogging)
+                {
+                    var recoveryTime = DateTime.UtcNow - _retryStartTime;
+                    Console.WriteLine($"[{GetType().Name}] Connection recovered after {_consecutiveErrors} attempts ({recoveryTime.TotalSeconds:F1}s)");
+                }
                 _consecutiveErrors = 0;
                 _currentRetryDelay = _options.InitialRetryDelay;
                 firstError = true;
@@ -100,29 +120,26 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
             }
             catch (OperationCanceledException ex)
             {
+                // Check if this was expected cancellation
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    // Clean cancellation requested by caller
-                    yield break;
+                    if (_options.EnableDebugLogging)
+                    {
+                        Console.WriteLine($"[{GetType().Name}] [DEBUG] Polling loop cancelled (expected) at {DateTime.UtcNow:HH:mm:ss.fff}");
+                    }
                 }
-
-                // Timeout cancellation from linkedCts (request timeout) - treat as connection error
-                _consecutiveErrors++;
-
-                if (firstError)
+                else
                 {
-                    Console.WriteLine($"[{GetType().Name}] Connection error: {ex.Message}");
-                    Console.WriteLine($"[{GetType().Name}] Retrying with exponential backoff...");
-                    firstError = false;
+                    // Unexpected cancellation - log details
+                    Console.WriteLine($"[{GetType().Name}] WARNING: Unexpected OperationCanceledException caught");
+                    Console.WriteLine($"[{GetType().Name}]   Exception source: {ex.Source}");
+                    Console.WriteLine($"[{GetType().Name}]   CancellationToken.IsCancellationRequested: {cancellationToken.IsCancellationRequested}");
+                    if (_options.EnableDebugLogging)
+                    {
+                        Console.WriteLine($"[{GetType().Name}] [DEBUG] Stack trace: {ex.StackTrace}");
+                    }
                 }
-
-                if (_consecutiveErrors >= _options.MaxConsecutiveErrors)
-                {
-                    errorToThrow = new InvalidOperationException(
-                        $"Failed to connect after {_consecutiveErrors} consecutive attempts. " +
-                        $"Ensure the game is running and the API is accessible at {fullUrl}",
-                        ex);
-                }
+                yield break;
             }
             catch (HttpRequestException ex)
             {
@@ -131,15 +148,26 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
 
                 if (firstError)
                 {
-                    Console.WriteLine($"[{GetType().Name}] Connection error: {ex.Message}");
-                    Console.WriteLine($"[{GetType().Name}] Retrying with exponential backoff...");
+                    _retryStartTime = DateTime.UtcNow;
+                    Console.WriteLine($"[{GetType().Name}] Connection error: {ex.GetType().Name}: {ex.Message}");
+                    Console.WriteLine($"[{GetType().Name}] Retrying with exponential backoff (max {_options.MaxConsecutiveErrors} attempts)...");
                     firstError = false;
+                }
+
+                // Show retry progress every 5 attempts or when debug logging is enabled
+                if (_consecutiveErrors % 5 == 0 || _options.EnableDebugLogging)
+                {
+                    var elapsedTime = DateTime.UtcNow - _retryStartTime;
+                    var nextDelay = _currentRetryDelay;
+                    Console.WriteLine($"[{GetType().Name}] Retry {_consecutiveErrors}/{_options.MaxConsecutiveErrors} " +
+                                    $"(elapsed: {elapsedTime.TotalSeconds:F0}s, next delay: {nextDelay.TotalSeconds:F0}s)");
                 }
 
                 if (_consecutiveErrors >= _options.MaxConsecutiveErrors)
                 {
+                    var totalRetryTime = DateTime.UtcNow - _retryStartTime;
                     errorToThrow = new InvalidOperationException(
-                        $"Failed to connect after {_consecutiveErrors} consecutive attempts. " +
+                        $"Failed to connect after {_consecutiveErrors} consecutive attempts over {totalRetryTime.TotalSeconds:F0}s. " +
                         $"Ensure the game is running and the API is accessible at {fullUrl}",
                         ex);
                 }
@@ -156,12 +184,12 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
             }
 
             // Yield data outside try-catch
-            if (hasData && data.HasValue)
+            if (hasData)
             {
-                yield return data.Value;
+                yield return data;
                 await Task.Delay(_options.PollInterval, cancellationToken);
             }
-            else if (!hasData)
+            else
             {
                 // Wait before retry (for connection errors or JSON errors)
                 var delayTime = _consecutiveErrors > 0 ? _currentRetryDelay : _options.PollInterval;
@@ -174,6 +202,22 @@ public abstract class HttpPollingSourceBase<T> : TelemetrySourceBase<T> where T 
                         Math.Min(_currentRetryDelay.TotalMilliseconds * 2, _options.MaxRetryDelay.TotalMilliseconds));
                 }
             }
+        }
+
+        // Loop exited - log diagnostics
+        if (_options.EnableDebugLogging)
+        {
+            var loopDuration = DateTime.UtcNow - loopStartTime;
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Polling loop exited at {DateTime.UtcNow:HH:mm:ss.fff}");
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Loop duration: {loopDuration.TotalSeconds:F1}s");
+            Console.WriteLine($"[{GetType().Name}] [DEBUG] Cancellation requested: {cancellationToken.IsCancellationRequested}");
+        }
+
+        // Check for unexpected exit
+        if (!cancellationToken.IsCancellationRequested)
+        {
+            Console.WriteLine($"[{GetType().Name}] WARNING: Polling loop exited without cancellation request");
+            Console.WriteLine($"[{GetType().Name}]   This may indicate an unexpected termination condition");
         }
     }
 
