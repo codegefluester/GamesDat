@@ -114,7 +114,7 @@ The `WarThunderSources` class provides convenient factory methods:
 // Create /state source with default settings (60Hz)
 var stateSource = WarThunderSources.CreateStateSource();
 
-// Create /state source with custom Hz
+// Create /state source with custom Hz (must be > 0)
 var stateSource = WarThunderSources.CreateStateSource(hz: 100);
 
 // Create /state source with custom base URL
@@ -132,13 +132,16 @@ var stateSource = WarThunderSources.CreateStateSource(
 );
 ```
 
+**Parameter Validation:**
+- The `hz` parameter must be greater than 0. Passing a value ≤ 0 will throw `ArgumentOutOfRangeException`.
+
 ## Data Structures
 
 ### StateData
 ```csharp
 public struct StateData
 {
-    public int Valid;
+    public bool Valid;                             // Data validity flag
     public float X, Y, Z;                          // Position (m)
     public float Vx, Vy, Vz;                       // Velocity (m/s)
     public float Wx, Wy, Wz;                       // Angular velocity (rad/s)
@@ -155,6 +158,8 @@ public struct StateData
     public long TimeMs;                            // Timestamp
 }
 ```
+
+**Note:** The `Valid` field changed from `int` to `bool` in version 2.0.0 (breaking change).
 
 ### IndicatorsData
 ```csharp
@@ -317,7 +322,7 @@ Potential additions:
 - Use `.RealtimeOnly()` if you don't need file output
 
 ### Missing data fields
-- Check `Valid` field (should be non-zero)
+- Check `Valid` field (should be `true`)
 - Some fields may be aircraft-specific (e.g., gear for planes, not tanks)
 - Indicators endpoint is slower and less reliable than state
 
