@@ -30,9 +30,9 @@ public class HttpPollingSourceOptions
     public TimeSpan RequestTimeout { get; init; } = TimeSpan.FromSeconds(5);
 
     /// <summary>
-    /// Maximum number of consecutive errors before giving up. Default is 10.
+    /// Maximum number of consecutive errors before giving up. Default is 30.
     /// </summary>
-    public int MaxConsecutiveErrors { get; init; } = 10;
+    public int MaxConsecutiveErrors { get; init; } = 30;
 
     /// <summary>
     /// Initial delay before first retry after an error. Default is 1 second.
@@ -43,6 +43,11 @@ public class HttpPollingSourceOptions
     /// Maximum delay between retries (exponential backoff cap). Default is 30 seconds.
     /// </summary>
     public TimeSpan MaxRetryDelay { get; init; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Enable verbose diagnostic logging for troubleshooting. Default is false.
+    /// </summary>
+    public bool EnableDebugLogging { get; init; } = false;
 
     /// <summary>
     /// Optional custom HTTP headers to include with requests.

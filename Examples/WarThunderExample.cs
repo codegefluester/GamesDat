@@ -16,9 +16,9 @@ public static class WarThunderExample
         await using var session = new GameSession()
             .AddSource(WarThunderSources.CreateStateSource())
             .OnData<StateData>(data =>
-                Console.WriteLine($"Speed: {data.IndicatedAirspeed:F1} km/h, " +
-                                $"Alt: {data.Altitude:F0}m, " +
-                                $"Throttle: {data.Throttle * 100:F0}%"))
+                Console.WriteLine($"Speed: {data.IndicatedAirspeedKmh:F1} km/h, " +
+                                $"Alt: {data.AltitudeMeters:F0}m, " +
+                                $"Throttle: {data.Throttle1Percent:F0}%"))
             .AutoOutput();
 
         Console.WriteLine("Recording War Thunder /state endpoint at 60Hz...");
@@ -35,7 +35,7 @@ public static class WarThunderExample
             .AddSource(WarThunderSources.CreateStateSource(hz: 60))      // 60Hz
             .AddSource(WarThunderSources.CreateIndicatorsSource(hz: 10)) // 10Hz
             .OnData<StateData>(data =>
-                Console.WriteLine($"[State] Speed: {data.IndicatedAirspeed:F1} km/h, Alt: {data.Altitude:F0}m"))
+                Console.WriteLine($"[State] Speed: {data.IndicatedAirspeedKmh:F1} km/h, Alt: {data.AltitudeMeters:F0}m"))
             .OnData<IndicatorsData>(data =>
                 Console.WriteLine($"[Indicators] Oil: {data.OilTemp:F1}°C, Water: {data.WaterTemp:F1}°C"));
 
@@ -55,15 +55,15 @@ public static class WarThunderExample
             {
                 Console.Clear();
                 Console.WriteLine("=== War Thunder Telemetry ===");
-                Console.WriteLine($"Speed (IAS): {data.IndicatedAirspeed:F1} km/h");
-                Console.WriteLine($"Speed (TAS): {data.TrueAirspeed:F1} km/h");
-                Console.WriteLine($"Altitude:    {data.Altitude:F0} m");
+                Console.WriteLine($"Speed (IAS): {data.IndicatedAirspeedKmh:F1} km/h");
+                Console.WriteLine($"Speed (TAS): {data.TrueAirspeedKmh:F1} km/h");
+                Console.WriteLine($"Altitude:    {data.AltitudeMeters:F0} m");
                 Console.WriteLine($"Mach:        {data.Mach:F2}");
-                Console.WriteLine($"AoA:         {data.AngleOfAttack:F1}°");
-                Console.WriteLine($"Throttle:    {data.Throttle * 100:F0}%");
-                Console.WriteLine($"RPM:         {data.RPM:F0}");
+                Console.WriteLine($"AoA:         {data.AngleOfAttackDeg:F1}°");
+                Console.WriteLine($"Throttle:    {data.Throttle1Percent:F0}%");
+                Console.WriteLine($"RPM:         {data.Rpm1:F0}");
                 Console.WriteLine($"G-Force:     {data.Ny:F2}g");
-                Console.WriteLine($"Fuel:        {data.Fuel:F1} kg");
+                Console.WriteLine($"Fuel:        {data.FuelMassKg:F1} kg");
             });
 
         Console.WriteLine("Starting realtime War Thunder monitoring...");
@@ -88,7 +88,7 @@ public static class WarThunderExample
         await using var session = new GameSession()
             .AddSource(new StateSource(options))
             .OnData<StateData>(data =>
-                Console.WriteLine($"Custom config: Speed={data.IndicatedAirspeed:F1} km/h"));
+                Console.WriteLine($"Custom config: Speed={data.IndicatedAirspeedKmh:F1} km/h"));
 
         Console.WriteLine("Recording with custom configuration...");
         await session.StartAsync();
