@@ -71,14 +71,11 @@ namespace GamesDat.Demo
 
                     lastValidData = data.Valid;
 
-                    if (data.Valid)
+                    if (data.Valid && frameCount % 1 == 0) // Update every frame (10Hz)
                     {
                         // Clear and redraw dashboard every frame
-                        if (frameCount % 1 == 0) // Update every frame (10Hz)
-                        {
-                            Console.SetCursorPosition(0, 4);
-                            DrawDashboard(data);
-                        }
+                        Console.SetCursorPosition(0, 4);
+                        DrawDashboard(data);
                     }
                 });
 

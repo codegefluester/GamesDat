@@ -11,7 +11,7 @@ namespace GamesDat.Core.Telemetry.Sources.WarThunder;
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 [GameId("WarThunder")]
-[DataVersion(1, 0, 0)]
+[DataVersion(2, 0, 0)]
 public struct StateData
 {
     // Validity
