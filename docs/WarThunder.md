@@ -6,6 +6,16 @@ This document describes the War Thunder real-time telemetry integration for Game
 
 War Thunder provides real-time telemetry through a local HTTP REST API that runs on `localhost:8111` during active matches. This integration allows you to capture flight and vehicle data at high frequency for analysis, visualization, or live dashboards.
 
+## Breaking Changes (v2.0.0)
+
+**DataVersion bumped from 1.0.0 to 2.0.0**
+
+- **`Valid` field type changed**: Both `StateData` and `IndicatorsData` now use `bool` instead of `int` for the `Valid` field
+  - **Old**: `public int Valid;` (where 0 = invalid, non-zero = valid)
+  - **New**: `public bool Valid;` (where `false` = invalid, `true` = valid)
+  - This is a breaking change for existing session files - old recordings may not deserialize correctly
+  - Update your code to check `if (data.Valid)` instead of `if (data.Valid != 0)`
+
 ## Features
 
 - ✅ HTTP polling-based telemetry capture
@@ -132,13 +142,31 @@ var stateSource = WarThunderSources.CreateStateSource(
 );
 ```
 
+### Parameter Validation
+
+The factory methods perform parameter validation to prevent common errors:
+
+- **`hz` parameter**: Must be greater than 0, otherwise throws `ArgumentOutOfRangeException`
+  ```csharp
+  // ❌ Will throw ArgumentOutOfRangeException
+  var source = WarThunderSources.CreateStateSource(hz: 0);
+  var source = WarThunderSources.CreateStateSource(hz: -1);
+
+  // ✅ Valid values
+  var source = WarThunderSources.CreateStateSource(hz: 1);
+  var source = WarThunderSources.CreateStateSource(hz: 60);
+  var source = WarThunderSources.CreateStateSource(hz: 100);
+  ```
+
+This validation prevents divide-by-zero errors during poll interval calculation.
+
 ## Data Structures
 
 ### StateData
 ```csharp
 public struct StateData
 {
-    public int Valid;
+    public bool Valid;                             // Data validity flag (BREAKING: Changed from int to bool in v2.0.0)
     public float X, Y, Z;                          // Position (m)
     public float Vx, Vy, Vz;                       // Velocity (m/s)
     public float Wx, Wy, Wz;                       // Angular velocity (rad/s)
@@ -153,6 +181,9 @@ public struct StateData
     public float Compass;                          // Navigation
     public float Fuel;                             // Fuel (kg)
     public long TimeMs;                            // Timestamp
+
+    // Note: The actual struct contains many more engine-specific fields (up to 4 engines).
+    // See StateData.cs for the complete field list.
 }
 ```
 
@@ -160,8 +191,9 @@ public struct StateData
 ```csharp
 public struct IndicatorsData
 {
-    public int Valid;
-    public int Type;
+    public bool Valid;                             // Data validity flag (BREAKING: Changed from int to bool in v2.0.0)
+    public string Army;                            // Vehicle category: "air", "tank", or "naval"
+    public string Type;                            // Vehicle type identifier
     public float Speed, PedalPosition;
     public float RpmHour, RpmMin;
     public float ManifoldPressure;
@@ -171,6 +203,10 @@ public struct IndicatorsData
     public float VerticalSpeed;
     public float Compass, Compass1;
     public float ClockHour, ClockMin, ClockSec;
+
+    // Note: The actual struct contains many more fields (100+ properties).
+    // See IndicatorsData.cs for the complete field list.
+    // This type contains string fields and cannot be used with BinarySessionWriter.
 }
 ```
 
@@ -317,7 +353,7 @@ Potential additions:
 - Use `.RealtimeOnly()` if you don't need file output
 
 ### Missing data fields
-- Check `Valid` field (should be non-zero)
+- Check `Valid` field (should be `true`)
 - Some fields may be aircraft-specific (e.g., gear for planes, not tanks)
 - Indicators endpoint is slower and less reliable than state
 
