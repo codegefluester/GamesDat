@@ -18,6 +18,7 @@ on:
         description: "Original issue number that triggered the analysis"
         required: false
         type: string
+engine: claude
 permissions:
   contents: read
   issues: read

@@ -10,6 +10,7 @@ on:
         description: "Name of the game to assess"
         required: true
         type: string
+engine: claude
 permissions:
   contents: read
 safe-outputs:
