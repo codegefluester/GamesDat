@@ -241,6 +241,13 @@ MIT License - see [LICENSE](LICENSE.md)
 - [ ] Cloud upload integrations (S3, Azure Blob)
 - [ ] Real-time dashboard web UI
 
+## Documentation
+
+- [Architecture Overview](docs/ARCHITECTURE.md) - Internal design and performance characteristics
+- [Creating Game Integrations](docs/CREATING_SOURCES.md) - Guide for adding new games
+- [Glossary](docs/GLOSSARY.md) - Technical terms and concepts
+- [War Thunder Integration](docs/WarThunder.md) - HTTP telemetry API details
+
 ## Credits
 
 Built with:
