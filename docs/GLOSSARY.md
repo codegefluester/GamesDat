@@ -49,6 +49,10 @@ A C# type constraint (`where T : unmanaged`) requiring types with no managed ref
 
 ## Source Types
 
+### Combined Source
+
+A specialized telemetry source that aggregates multiple data streams into a single unified output. For example, Assetto Corsa Competizione's combined source merges Physics (100Hz), Graphics (10Hz), and Static (5s intervals) data into complete snapshots. Offers 15-25% lower CPU usage compared to individual sources by eliminating lock contention between separate writers.
+
 ### File Watcher Source
 
 A telemetry source that monitors directories for new or modified files using `FileSystemWatcher`. Commonly used for replay file analysis. Includes debouncing to prevent duplicate processing and tracks files already processed.
@@ -66,6 +70,14 @@ var source = WarThunderSources.CreateStateSource(hz: 60);
 ### Memory-Mapped File Source
 
 A telemetry source (`MemoryMappedFileSource<T>`) that polls Windows shared memory regions. Provides low-overhead (~1-2 microseconds per read), high-frequency data capture from games that expose telemetry via MMF.
+
+### Replay File Source
+
+A telemetry source based on `FileWatcherSource` that monitors directories for game replay, demo, or recording files. Used to analyze historical game data from file formats like F1 race replays, Counter-Strike demos, League of Legends replays, or iRacing IBT files. Automatically processes files as they appear and tracks which files have been processed.
+
+### UDP Source
+
+A telemetry source (`UdpSourceBase<T>`) that receives real-time game data via UDP network protocol. Listens on a configurable port and deserializes incoming UDP packets into typed telemetry frames. Commonly used for games like Formula 1 (EA/Codemasters) that broadcast telemetry over the network. Base class provides packet reception; derived classes implement game-specific packet parsing.
 
 ## Performance and Configuration
 
@@ -91,6 +103,14 @@ The time delay between consecutive reads in polling-based sources. Specified as 
 
 ## Game-Specific Terms
 
+### Assetto Corsa Competizione (ACC)
+
+A racing simulation game by Kunos Simulazioni that exposes telemetry through three memory-mapped files: Physics (vehicle dynamics, 100Hz), Graphics (visual and timing data, 10Hz), and Static (session and track info, updated every 5 seconds). Supports individual sources or a combined source that aggregates all three into complete telemetry snapshots.
+
+### Formula 1 (F1)
+
+EA Sports/Codemasters Formula 1 racing game series (F1 22, 23, 24, 25) that provides telemetry via UDP broadcast. Each game year has specific packet formats defined in C header files. Supports both real-time telemetry capture during gameplay and replay file analysis. Telemetry includes car motion, lap data, telemetry, session info, and event notifications.
+
 ### Indicators Endpoint
 
 A War Thunder HTTP endpoint (`/indicators`) providing cockpit instrumentation data at lower frequency (typically 10Hz). Contains engine instruments, attitude indicators, and panel gauges. Returns data with string fields, incompatible with binary writers.
@@ -99,11 +119,19 @@ A War Thunder HTTP endpoint (`/indicators`) providing cockpit instrumentation da
 
 A War Thunder HTTP endpoint (`/state`) providing primary flight and vehicle telemetry at high frequency (typically 60Hz). Contains position, velocity, flight parameters, engine data, and control surface states. Returns numeric data suitable for binary serialization.
 
+### Trackmania
+
+A racing game by Ubisoft Nadeo that exposes telemetry through a memory-mapped file named "TMInterface". Uses a custom data format (TrackmaniaDataV3) with versioned headers to track breaking changes. Provides vehicle position, velocity, rotation, and race state information in real-time.
+
 ### Valid Field
 
 A boolean field in telemetry structures indicating data validity. In War Thunder sources, `Valid = true` means the data is current and the player is actively in a match. `Valid = false` indicates no active session or stale data.
 
 ## API Patterns
+
+### Auto Output
+
+A convenience feature of `GameSession` that automatically generates output filenames for session files based on source type and timestamp. Default pattern: `{sourceType}_{yyyyMMdd}_{HHmmss}.dat` (e.g., `accphysics_20260125_120000.dat`). Files are written to the configured output directory (default: `./sessions/`). Can be overridden per-source with `.OutputTo()`.
 
 ### Exponential Backoff
 
